@@ -1,0 +1,244 @@
+
+
+
+  
+  
+  
+  
+  
+  
+
+
+  
+    
+
+      
+AWC Warehouse Tool
+
+      
+
+        NL
+        EN
+      
+
+    
+
+    
+
+      Pallets
+      Machines
+      Incidenten
+    
+
+  
+  
+    
+
+      
+
+        
+Pallettelling
+
+        
+Vul de telling in voor Conakryweg of Slego. Daarna kun je direct mailen, Excel exporteren of PDF maken.
+
+        
+
+
+        
+
+
+
+    <div class="grid-2">
+      <div>
+        <label id="labelPalletLocation" for="palletLocation">Locatie</label>
+        <select id="palletLocation">
+          <option>Conakryweg</option>
+          <option>Slego</option>
+        </select>
+      </div>
+      <div>
+        <label id="labelPalletUser" for="palletUser">Gebruiker</label>
+        <input id="palletUser" type="text" placeholder="Naam gebruiker" />
+      </div>
+    </div>
+
+    <div class="type-grid">
+      <div>
+        <label id="labelEuro" for="euro">Aantal lege europallets</label>
+        <input id="euro" type="number" min="0" value="0" />
+      </div>
+      <div>
+        <label id="labelBlok" for="blok">Aantal lege blokpallets</label>
+        <input id="blok" type="number" min="0" value="0" />
+      </div>
+      <div>
+        <label id="label2m" for="meter2">Aantal lege 2 meter pallets</label>
+        <input id="meter2" type="number" min="0" value="0" />
+      </div>
+      <div>
+        <label id="labelDpb" for="dpb">Aantal lege DPB pallets</label>
+        <input id="dpb" type="number" min="0" value="0" />
+      </div>
+    </div>
+
+    <label id="labelPalletPhoto" for="palletPhoto">Foto maken / uploaden</label>
+    <input id="palletPhoto" type="file" accept="image/*" capture="environment" />
+    <img id="palletPreview" class="camera-preview" alt="Pallet preview" />
+
+    <div class="summary-box">
+      <strong id="palletSummaryTitle">Overzicht huidige telling</strong>
+      <div class="summary-grid">
+        <div class="summary-item"><div id="sumEuroLabel">Euro</div><div class="value" id="sumEuro">0</div></div>
+        <div class="summary-item"><div id="sumBlokLabel">Blok</div><div class="value" id="sumBlok">0</div></div>
+        <div class="summary-item"><div id="sum2mLabel">2 meter</div><div class="value" id="sum2m">0</div></div>
+        <div class="summary-item"><div id="sumDpbLabel">DPB</div><div class="value" id="sumDpb">0</div></div>
+      </div>
+      <p style="margin:12px 0 0;"><strong id="sumTotalLabel">Totaal:</strong> <span id="sumTotal">0</span></p>
+    </div>
+
+    <div class="button-grid">
+      <button class="action-btn primary" onclick="mailPallets()" id="btnMailPallets">Mail</button>
+      <button class="action-btn" onclick="excelPallets()" id="btnExcelPallets">Excel</button>
+      <button class="action-btn" onclick="pdfPallets()" id="btnPdfPallets">PDF</button>
+    </div>
+    <p class="export-note" id="palletExportNote">De foto gaat mee in PDF. In e-mail kan de browser geen echte bijlage meesturen.</p>
+  </div>
+</section>
+
+<section id="machines" class="tab">
+  <div class="card">
+    <h2 id="machinesTitle">Machine checklist</h2>
+    <p class="intro" id="machinesIntro">Uitgebreide inspectie voor reachtrucks en pompkarren. Vul fouten duidelijk in en voeg foto toe voor reparatieverzoek.</p>
+    <div id="machineNoticeError" class="notice error"></div>
+    <div id="machineNoticeSuccess" class="notice success"></div>
+
+    <div class="grid-3">
+      <div>
+        <label id="labelMachineType" for="machineType">Type machine</label>
+        <select id="machineType">
+          <option>Reachtruck</option>
+          <option>Pompkar</option>
+        </select>
+      </div>
+      <div>
+        <label id="labelMachineUser" for="machineUser">Gebruiker</label>
+        <input id="machineUser" type="text" placeholder="Naam gebruiker" />
+      </div>
+      <div>
+        <label id="labelMachineLocation" for="machineLocation">Locatie</label>
+        <select id="machineLocation">
+          <option>Conakryweg</option>
+          <option>Slego</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <label id="labelSerial" for="machineSerial">Serienummer</label>
+        <input id="machineSerial" type="text" placeholder="Serienummer" />
+      </div>
+      <div>
+        <label id="labelNumber" for="machineNumber">Machinenummer</label>
+        <input id="machineNumber" type="text" placeholder="Machinenummer" />
+      </div>
+    </div>
+
+    <h3 id="checksTitle">Controlepunten</h3>
+    <div class="check-table" id="checkTable"></div>
+
+    <label id="labelMachineNotes" for="machineNotes">Toelichting / defecten / reparatieverzoek</label>
+    <textarea id="machineNotes" placeholder="Beschrijf wat er fout is, wat gerepareerd moet worden en eventuele bijzonderheden"></textarea>
+
+    <label id="labelMachinePhoto" for="machinePhoto">Foto maken / uploaden</label>
+    <input id="machinePhoto" type="file" accept="image/*" capture="environment" />
+    <img id="machinePreview" class="camera-preview" alt="Machine preview" />
+
+    <div class="button-grid">
+      <button class="action-btn primary" onclick="mailMachine()" id="btnMailMachine">Mail</button>
+      <button class="action-btn" onclick="excelMachine()" id="btnExcelMachine">Excel</button>
+      <button class="action-btn" onclick="pdfMachine()" id="btnPdfMachine">PDF</button>
+    </div>
+    <p class="export-note" id="machineExportNote">De foto gaat mee in PDF. In e-mail kan de browser geen echte bijlage meesturen.</p>
+  </div>
+</section>
+
+<section id="incidents" class="tab">
+  <div class="card">
+    <h2 id="incidentsTitle">Bijna ongeval / incident</h2>
+    <p class="intro" id="incidentsIntro">Volledig veiligheidsrapport met vragenlijst, belangrijke details en foto van de locatie.</p>
+    <div id="incidentNoticeError" class="notice error"></div>
+    <div id="incidentNoticeSuccess" class="notice success"></div>
+
+    <div class="grid-3">
+      <div>
+        <label id="labelReporter" for="incidentReporter">Melder</label>
+        <input id="incidentReporter" type="text" placeholder="Naam melder" />
+      </div>
+      <div>
+        <label id="labelIncidentLocation" for="incidentLocation">Locatie</label>
+        <select id="incidentLocation">
+          <option>Conakryweg</option>
+          <option>Slego</option>
+        </select>
+      </div>
+      <div>
+        <label id="labelIncidentTime" for="incidentTime">Datum en tijd</label>
+        <input id="incidentTime" type="datetime-local" />
+      </div>
+    </div>
+
+    <label id="labelWhatHappened" for="incidentWhat">Wat is er gebeurd?</label>
+    <textarea id="incidentWhat" placeholder="Beschrijf stap voor stap wat er gebeurde"></textarea>
+
+    <label id="labelCause" for="incidentCause">Waarschijnlijke oorzaak</label>
+    <textarea id="incidentCause" placeholder="Wat was volgens jou de oorzaak?"></textarea>
+
+    <div class="grid-2">
+      <div>
+        <label id="labelInjury" for="incidentInjury">Letsel of schade?</label>
+        <select id="incidentInjury">
+          <option value="Nee">Nee</option>
+          <option value="Ja">Ja</option>
+        </select>
+      </div>
+      <div>
+        <label id="labelDanger" for="incidentDanger">Direct gevaar aanwezig?</label>
+        <select id="incidentDanger">
+          <option value="Nee">Nee</option>
+          <option value="Ja">Ja</option>
+        </select>
+      </div>
+    </div>
+
+    <label id="labelDamage" for="incidentDamage">Schade / letsel / risico</label>
+    <textarea id="incidentDamage" placeholder="Omschrijf schade, letsel of mogelijk risico"></textarea>
+
+    <label id="labelActionTaken" for="incidentAction">Welke directe actie is genomen?</label>
+    <textarea id="incidentAction" placeholder="Wat is direct gedaan om de situatie veilig te maken?"></textarea>
+
+    <label id="labelPrevention" for="incidentPrevention">Hoe voorkomen we herhaling?</label>
+    <textarea id="incidentPrevention" placeholder="Verbetermaatregelen of advies"></textarea>
+
+    <label id="labelWitnesses" for="incidentWitnesses">Getuigen / betrokkenen</label>
+    <input id="incidentWitnesses" type="text" placeholder="Namen van getuigen of betrokkenen" />
+
+    <label id="labelIncidentPhoto" for="incidentPhoto">Foto maken / uploaden</label>
+    <input id="incidentPhoto" type="file" accept="image/*" capture="environment" />
+    <img id="incidentPreview" class="camera-preview" alt="Incident preview" />
+
+    <div class="button-grid">
+      <button class="action-btn primary" onclick="mailIncident()" id="btnMailIncident">Mail</button>
+      <button class="action-btn" onclick="excelIncident()" id="btnExcelIncident">Excel</button>
+      <button class="action-btn" onclick="pdfIncident()" id="btnPdfIncident">PDF</button>
+    </div>
+    <p class="export-note" id="incidentExportNote">De foto gaat mee in PDF. In e-mail kan de browser geen echte bijlage meesturen.</p>
+  </div>
+</section>
+
+
+  
+  
+
+
