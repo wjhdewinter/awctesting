@@ -1,0 +1,2542 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>AWC Warehouse Tool V18 Full Pro</title>
+
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#ff7a00" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+    :root{
+      --black:#111111;
+      --orange:#ff7a00;
+      --white:#ffffff;
+      --bg:#f4f4f4;
+      --border:#d8d8d8;
+      --muted:#666666;
+      --danger-bg:#fdecec;
+      --danger-text:#a61b1b;
+      --success-bg:#eaf8ee;
+      --success-text:#176c2d;
+      --card-shadow:0 8px 22px rgba(0,0,0,.08);
+      --radius:18px;
+      --whatsapp:#25D366;
+    }
+
+    *{box-sizing:border-box}
+    html,body{
+      margin:0;
+      padding:0;
+      width:100%;
+      min-height:100%;
+    }
+    body{
+      font-family:Arial,sans-serif;
+      background:var(--bg);
+      color:var(--black);
+      overscroll-behavior:none;
+      touch-action:manipulation;
+    }
+
+    #splash{
+      position:fixed;
+      inset:0;
+      width:100vw;
+      height:100vh;
+      background:var(--black);
+      color:var(--white);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:99999;
+      flex-direction:column;
+      transition:opacity .45s ease;
+      padding:24px;
+    }
+    .splash-logo{
+      font-size:56px;
+      font-weight:900;
+      color:var(--orange);
+      letter-spacing:1px;
+    }
+    .splash-sub{
+      margin-top:10px;
+      font-size:18px;
+      letter-spacing:2px;
+      text-align:center;
+    }
+    .splash-loader{
+      margin-top:22px;
+      width:46px;
+      height:46px;
+      border:4px solid #333;
+      border-top:4px solid var(--orange);
+      border-radius:50%;
+      animation:spin 1s linear infinite;
+    }
+    @keyframes spin{
+      from{transform:rotate(0deg)}
+      to{transform:rotate(360deg)}
+    }
+
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:30;
+      background:var(--black);
+      color:var(--white);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:14px 16px;
+      box-shadow:0 2px 10px rgba(0,0,0,.18);
+    }
+    .menu-toggle,.lang-btn,.install-btn{
+      border:none;
+      cursor:pointer;
+      font-weight:700;
+      border-radius:14px;
+    }
+    .menu-toggle{
+      background:none;
+      color:var(--white);
+      font-size:28px;
+      line-height:1;
+      padding:8px 10px;
+    }
+    .app-title{
+      font-size:20px;
+      font-weight:800;
+      text-align:center;
+      flex:1;
+      padding:0 10px;
+    }
+    .top-actions{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .lang-btn{
+      min-height:44px;
+      min-width:56px;
+      background:#2a2a2a;
+      color:#fff;
+      font-size:15px;
+      padding:0 12px;
+    }
+    .lang-btn.active{background:var(--orange)}
+    .install-btn{
+      min-height:44px;
+      background:var(--orange);
+      color:#fff;
+      font-size:15px;
+      padding:0 14px;
+      display:none;
+    }
+
+    .sidebar{
+      position:fixed;
+      top:0;
+      left:-290px;
+      width:280px;
+      height:100%;
+      background:var(--black);
+      z-index:40;
+      padding:18px 16px;
+      transition:left .25s ease;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      overflow-y:auto;
+    }
+    .sidebar.active{left:0}
+    .sidebar-header{
+      color:var(--orange);
+      font-size:24px;
+      font-weight:900;
+      margin-bottom:6px;
+    }
+    .sidebar button{
+      min-height:62px;
+      border:none;
+      border-radius:14px;
+      background:#222;
+      color:#fff;
+      text-align:left;
+      padding:0 16px;
+      font-size:18px;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .sidebar button.active{
+      background:var(--orange);
+    }
+
+    .overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.45);
+      display:none;
+      z-index:35;
+    }
+    .overlay.active{display:block}
+
+    main{
+      max-width:1180px;
+      margin:0 auto;
+      padding:16px;
+    }
+    .tab{display:none}
+    .tab.active{display:block}
+    .card{
+      background:var(--white);
+      border-radius:var(--radius);
+      padding:20px;
+      margin-bottom:16px;
+      box-shadow:var(--card-shadow);
+    }
+
+    h2,h3,h4,p{margin-top:0}
+    .intro{
+      color:var(--muted);
+      line-height:1.45;
+    }
+
+    .grid-2,.grid-3,.grid-4,.button-grid,.stats-grid,.dashboard-grid{
+      display:grid;
+      gap:14px;
+    }
+    .grid-2{grid-template-columns:repeat(2,1fr)}
+    .grid-3{grid-template-columns:repeat(3,1fr)}
+    .grid-4{grid-template-columns:repeat(4,1fr)}
+    .button-grid{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+    .stats-grid{grid-template-columns:repeat(4,1fr)}
+    .dashboard-grid{grid-template-columns:repeat(4,1fr)}
+
+    label{
+      display:block;
+      font-weight:700;
+      font-size:16px;
+      margin:12px 0 6px;
+    }
+
+    input,select,textarea{
+      width:100%;
+      min-height:58px;
+      padding:16px;
+      border:1px solid var(--border);
+      border-radius:14px;
+      font-size:17px;
+      background:#fff;
+    }
+
+    textarea{
+      min-height:120px;
+      resize:vertical;
+      line-height:1.45;
+    }
+
+    .action-btn,.history-action,.danger-btn,.secondary-btn,.whatsapp-inline-btn{
+      width:100%;
+      min-height:62px;
+      border:none;
+      border-radius:14px;
+      font-size:18px;
+      font-weight:700;
+      cursor:pointer;
+      background:var(--black);
+      color:#fff;
+      padding:14px;
+      text-decoration:none;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .action-btn.primary,.history-action.primary{
+      background:var(--orange);
+    }
+    .danger-btn{
+      background:#c62828;
+      min-height:58px;
+    }
+    .secondary-btn{
+      background:#555;
+    }
+    .whatsapp-inline-btn{
+      background:var(--whatsapp);
+      color:#fff;
+    }
+
+    .notice{
+      display:none;
+      padding:14px 16px;
+      border-radius:14px;
+      font-weight:700;
+      margin-bottom:14px;
+    }
+    .notice.error{
+      background:var(--danger-bg);
+      color:var(--danger-text);
+    }
+    .notice.success{
+      background:var(--success-bg);
+      color:var(--success-text);
+    }
+
+    .summary-box{
+      background:#fff7ef;
+      border:1px solid #ffd7b6;
+      border-radius:16px;
+      padding:16px;
+      margin-top:14px;
+    }
+    .summary-item,.dash-card{
+      background:#fff;
+      border:1px solid #ececec;
+      border-radius:14px;
+      padding:16px;
+      text-align:center;
+    }
+    .summary-item .value,.dash-value{
+      margin-top:6px;
+      font-size:28px;
+      font-weight:800;
+    }
+    .dash-title{
+      color:var(--muted);
+      font-size:14px;
+      font-weight:700;
+    }
+
+    .preview{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:12px;
+    }
+    .preview img{
+      width:96px;
+      height:96px;
+      object-fit:cover;
+      border-radius:12px;
+      border:2px solid var(--orange);
+    }
+
+    .muted{
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.45;
+      margin-top:10px;
+    }
+
+    .check-table{
+      margin-top:12px;
+      border:1px solid #ececec;
+      border-radius:16px;
+      overflow:hidden;
+    }
+    .check-row{
+      display:grid;
+      grid-template-columns:1.5fr .9fr .9fr;
+      gap:10px;
+      align-items:center;
+      padding:14px 16px;
+      border-bottom:1px solid #efefef;
+    }
+    .check-row:last-child{border-bottom:none}
+    .choice-wrap{
+      display:flex;
+      justify-content:center;
+    }
+    .choice-btn{
+      min-height:50px;
+      min-width:110px;
+      padding:10px 14px;
+      border:none;
+      border-radius:12px;
+      font-size:16px;
+      font-weight:700;
+      background:#f0f0f0;
+      cursor:pointer;
+    }
+    .choice-btn.good.active{
+      background:#eaf8ee;
+      color:#176c2d;
+      outline:2px solid #176c2d;
+    }
+    .choice-btn.bad.active{
+      background:#fdecec;
+      color:#a61b1b;
+      outline:2px solid #a61b1b;
+    }
+
+    .history-list{
+      display:grid;
+      gap:12px;
+    }
+    .history-item{
+      border:1px solid #ececec;
+      border-radius:16px;
+      padding:16px;
+      background:#fafafa;
+    }
+    .history-top{
+      display:flex;
+      gap:10px;
+      justify-content:space-between;
+      align-items:flex-start;
+      flex-wrap:wrap;
+      margin-bottom:8px;
+    }
+    .history-title{
+      font-weight:800;
+    }
+    .history-meta{
+      color:#666;
+      font-size:14px;
+    }
+    .history-actions{
+      margin-top:12px;
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+      gap:10px;
+    }
+
+    .damage-row{
+      border:1px solid #ececec;
+      border-radius:16px;
+      padding:16px;
+      background:#fafafa;
+      margin-bottom:12px;
+    }
+    .damage-row-grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr) 120px;
+      gap:12px;
+      align-items:end;
+    }
+
+    .list-mini{
+      display:grid;
+      gap:10px;
+    }
+    .mini-item{
+      padding:12px;
+      border:1px solid #ececec;
+      border-radius:12px;
+      background:#fafafa;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      border:1px solid #ececec;
+      border-radius:16px;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:700px;
+      background:#fff;
+    }
+    th,td{
+      text-align:left;
+      padding:12px 14px;
+      border-bottom:1px solid #efefef;
+      font-size:14px;
+    }
+    th{
+      background:#f8f8f8;
+      font-weight:800;
+    }
+
+    .top-btn-row{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+      gap:10px;
+      margin-top:14px;
+    }
+
+    #whatsappBtn{
+      position:fixed;
+      right:20px;
+      bottom:20px;
+      width:66px;
+      height:66px;
+      border-radius:50%;
+      background:var(--whatsapp);
+      color:#fff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-decoration:none;
+      font-size:30px;
+      box-shadow:0 10px 24px rgba(0,0,0,.28);
+      z-index:9999;
+      transition:transform .2s ease, opacity .2s ease;
+      -webkit-tap-highlight-color:transparent;
+    }
+    #whatsappBtn:hover{
+      transform:scale(1.06);
+    }
+
+    @media (max-width:1000px){
+      .dashboard-grid,.grid-4,.stats-grid{grid-template-columns:repeat(2,1fr)}
+      .damage-row-grid{grid-template-columns:1fr 1fr}
+    }
+
+    @media (max-width:900px){
+      .grid-2,.grid-3,.grid-4,.stats-grid,.dashboard-grid{grid-template-columns:1fr}
+      .check-row{grid-template-columns:1fr}
+      .app-title{font-size:18px}
+      .install-btn{font-size:14px}
+      .damage-row-grid{grid-template-columns:1fr}
+      #whatsappBtn{
+        width:62px;
+        height:62px;
+        right:16px;
+        bottom:16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="splash">
+    <div class="splash-logo">AWC</div>
+    <div class="splash-sub">Warehouse Tool</div>
+    <div class="splash-loader"></div>
+  </div>
+
+  <header class="topbar">
+    <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+    <div class="app-title" id="appTitle">AWC Warehouse Tool V18 Full Pro</div>
+    <div class="top-actions">
+      <button id="langNlBtn" class="lang-btn active" onclick="setLang('nl')">NL</button>
+      <button id="langEnBtn" class="lang-btn" onclick="setLang('en')">EN</button>
+      <button id="installBtn" class="install-btn">Install</button>
+    </div>
+  </header>
+
+  <div id="sidebar" class="sidebar">
+    <div class="sidebar-header">Menu</div>
+    <button id="sideDashboard" class="active" onclick="openTabFromMenu('dashboard')">📊 Dashboard</button>
+    <button id="sidePallets" onclick="openTabFromMenu('pallets')">📦 Pallets</button>
+    <button id="sideMachines" onclick="openTabFromMenu('machines')">🛠 Machines</button>
+    <button id="sideIncidents" onclick="openTabFromMenu('incidents')">⚠️ Incidenten</button>
+    <button id="sideDamage" onclick="openTabFromMenu('damage')">💥 Schade</button>
+  </div>
+
+  <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
+
+  <main>
+    <section id="dashboard" class="tab active">
+      <div class="card">
+        <h2 id="dashboardTitle">Dashboard</h2>
+        <p class="intro" id="dashboardIntro">Overzicht van pallets, machines, incidenten en schades.</p>
+
+        <div class="dashboard-grid">
+          <div class="dash-card">
+            <div class="dash-title" id="dashPalletCountLabel">Pallettellingen</div>
+            <div class="dash-value" id="dashPalletCount">0</div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-title" id="dashMachineCountLabel">Machine checks</div>
+            <div class="dash-value" id="dashMachineCount">0</div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-title" id="dashIncidentCountLabel">Incidenten</div>
+            <div class="dash-value" id="dashIncidentCount">0</div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-title" id="dashDamageCountLabel">Schades</div>
+            <div class="dash-value" id="dashDamageCount">0</div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-title" id="dashTotalPalletsLabel">Totaal pallets</div>
+            <div class="dash-value" id="dashTotalPallets">0</div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-title" id="dashOpenFaultsLabel">Machine fouten</div>
+            <div class="dash-value" id="dashOpenFaults">0</div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-title" id="dashDamageUnitsLabel">Beschadigde stuks</div>
+            <div class="dash-value" id="dashDamageUnits">0</div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-title" id="dashLastUpdateLabel">Laatste update</div>
+            <div class="dash-value" id="dashLastUpdate" style="font-size:18px;">-</div>
+          </div>
+        </div>
+
+        <div class="top-btn-row">
+          <button class="danger-btn" onclick="clearAllHistory()" id="btnClearAll">Alles wissen</button>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3 id="dashboardRecentLabel">Recente registraties</h3>
+          <div id="dashboardRecentList" class="list-mini"></div>
+        </div>
+
+        <div class="card">
+          <h3 id="dashboardLocationsLabel">Overzicht per locatie</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th id="tblLocation">Locatie</th>
+                  <th id="tblPallets">Pallets</th>
+                  <th id="tblMachines">Machines</th>
+                  <th id="tblIncidents">Incidenten</th>
+                  <th id="tblDamages">Schades</th>
+                </tr>
+              </thead>
+              <tbody id="dashboardLocationTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="pallets" class="tab">
+      <div class="card">
+        <h2 id="palletTitle">Pallettelling</h2>
+        <p class="intro" id="palletIntro">Vul de telling in en maak direct mail, Excel of PDF. De foto's gaan mee in de PDF.</p>
+
+        <div id="palletError" class="notice error"></div>
+        <div id="palletSuccess" class="notice success"></div>
+
+        <div class="grid-2">
+          <div>
+            <label id="labelPalletEmail" for="palletEmail">E-mail ontvanger</label>
+            <select id="palletEmail">
+              <option value="warehouseh@amsterdamwarehouse.com">Warehouse</option>
+              <option value="td@amsterdamwarehouse.com">Technische dienst</option>
+              <option value="management@amsterdamwarehouse.com">Management</option>
+            </select>
+          </div>
+          <div>
+            <label id="labelPalletLocation" for="palletLocation">Locatie</label>
+            <select id="palletLocation">
+              <option>Conakryweg</option>
+              <option>Slego</option>
+            </select>
+          </div>
+        </div>
+
+        <label id="labelPalletUser" for="palletUser">Gebruiker</label>
+        <input id="palletUser" type="text" placeholder="Naam gebruiker" />
+
+        <div class="grid-2">
+          <div>
+            <label id="labelEuro" for="palletEuro">Aantal lege europallets</label>
+            <input id="palletEuro" type="number" min="0" value="0" />
+          </div>
+          <div>
+            <label id="labelBlok" for="palletBlok">Aantal lege blokpallets</label>
+            <input id="palletBlok" type="number" min="0" value="0" />
+          </div>
+          <div>
+            <label id="label2m" for="pallet2m">Aantal lege 2 meter pallets</label>
+            <input id="pallet2m" type="number" min="0" value="0" />
+          </div>
+          <div>
+            <label id="labelDpb" for="palletDpb">Aantal lege DPB pallets</label>
+            <input id="palletDpb" type="number" min="0" value="0" />
+          </div>
+        </div>
+
+        <label id="labelPalletPhoto" for="palletPhoto">Foto maken / uploaden</label>
+        <input id="palletPhoto" type="file" accept="image/*" capture="environment" multiple />
+        <div id="palletPreview" class="preview"></div>
+
+        <div class="summary-box">
+          <strong id="palletSummaryTitle">Huidige telling</strong>
+          <div class="stats-grid" style="margin-top:12px;">
+            <div class="summary-item"><div id="sumEuroLabel">Euro</div><div class="value" id="sumEuro">0</div></div>
+            <div class="summary-item"><div id="sumBlokLabel">Blok</div><div class="value" id="sumBlok">0</div></div>
+            <div class="summary-item"><div id="sum2mLabel">2 meter</div><div class="value" id="sum2m">0</div></div>
+            <div class="summary-item"><div id="sumDpbLabel">DPB</div><div class="value" id="sumDpb">0</div></div>
+          </div>
+          <p style="margin:12px 0 0;"><strong id="sumTotalLabel">Totaal:</strong> <span id="sumTotal">0</span></p>
+        </div>
+
+        <div class="button-grid" style="margin-top:14px;">
+          <button class="action-btn primary" onclick="exportCurrentPallet('mail')" id="btnPalletMail">Mail</button>
+          <button class="action-btn" onclick="exportCurrentPallet('excel')" id="btnPalletExcel">Excel</button>
+          <button class="action-btn" onclick="exportCurrentPallet('pdf')" id="btnPalletPdf">PDF</button>
+          <button class="action-btn" onclick="addPalletHistory()" id="btnPalletHistoryAdd">Aan historie toevoegen</button>
+          <button class="danger-btn" onclick="clearHistory('pallets')" id="btnPalletClear">Historie wissen</button>
+        </div>
+
+        <p class="muted" id="palletNote">De browser kan foto's niet als echte mailbijlage meesturen. In PDF gaan de foto's wel mee.</p>
+      </div>
+
+      <div class="card">
+        <h3 id="palletHistoryTitle">Historie pallettellingen</h3>
+        <div id="palletHistoryList" class="history-list"></div>
+      </div>
+    </section>
+
+    <section id="machines" class="tab">
+      <div class="card">
+        <h2 id="machineTitle">Machine checklist</h2>
+        <p class="intro" id="machineIntro">Uitgebreide inspectie voor reachtrucks en pompkarren. Bij fouten is toelichting verplicht.</p>
+
+        <div id="machineError" class="notice error"></div>
+        <div id="machineSuccess" class="notice success"></div>
+
+        <div class="grid-3">
+          <div>
+            <label id="labelMachineEmail" for="machineEmail">E-mail ontvanger</label>
+            <select id="machineEmail">
+              <option value="td@amsterdamwarehouse.com">Technische dienst</option>
+              <option value="management@amsterdamwarehouse.com">Management</option>
+              <option value="warehouseh@amsterdamwarehouse.com">Warehouse</option>
+            </select>
+          </div>
+          <div>
+            <label id="labelMachineType" for="machineType">Type machine</label>
+            <select id="machineType">
+              <option>Reachtruck</option>
+              <option>Pompkar</option>
+            </select>
+          </div>
+          <div>
+            <label id="labelMachineLocation" for="machineLocation">Locatie</label>
+            <select id="machineLocation">
+              <option>Conakryweg</option>
+              <option>Slego</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid-3">
+          <div>
+            <label id="labelMachineUser" for="machineUser">Gebruiker</label>
+            <input id="machineUser" type="text" placeholder="Naam gebruiker" />
+          </div>
+          <div>
+            <label id="labelMachineSerial" for="machineSerial">Serienummer</label>
+            <input id="machineSerial" type="text" placeholder="Serienummer" />
+          </div>
+          <div>
+            <label id="labelMachineNumber" for="machineNumber">Machinenummer</label>
+            <input id="machineNumber" type="text" placeholder="Machinenummer" />
+          </div>
+        </div>
+
+        <label id="machineChecksTitle">Controlepunten</label>
+        <div id="machineCheckTable" class="check-table"></div>
+
+        <label id="labelMachineNotes" for="machineNotes">Toelichting / defecten / reparatieverzoek</label>
+        <textarea id="machineNotes" placeholder="Beschrijf defecten en toelichting"></textarea>
+
+        <label id="labelMachinePhoto" for="machinePhoto">Foto maken / uploaden</label>
+        <input id="machinePhoto" type="file" accept="image/*" capture="environment" multiple />
+        <div id="machinePreview" class="preview"></div>
+
+        <div class="button-grid" style="margin-top:14px;">
+          <button class="action-btn primary" onclick="exportCurrentMachine('mail')" id="btnMachineMail">Mail</button>
+          <button class="action-btn" onclick="exportCurrentMachine('excel')" id="btnMachineExcel">Excel</button>
+          <button class="action-btn" onclick="exportCurrentMachine('pdf')" id="btnMachinePdf">PDF</button>
+          <button class="action-btn" onclick="addMachineHistory()" id="btnMachineHistoryAdd">Aan historie toevoegen</button>
+          <button class="danger-btn" onclick="clearHistory('machines')" id="btnMachineClear">Historie wissen</button>
+        </div>
+
+        <p class="muted" id="machineNote">De browser kan foto's niet als echte mailbijlage meesturen. In PDF gaan de foto's wel mee.</p>
+      </div>
+
+      <div class="card">
+        <h3 id="machineHistoryTitle">Historie machine checks</h3>
+        <div id="machineHistoryList" class="history-list"></div>
+      </div>
+    </section>
+
+    <section id="incidents" class="tab">
+      <div class="card">
+        <h2 id="incidentTitle">Bijna ongeval / incident</h2>
+        <p class="intro" id="incidentIntro">Volledig incidentrapport met belangrijke details, acties en foto.</p>
+
+        <div id="incidentError" class="notice error"></div>
+        <div id="incidentSuccess" class="notice success"></div>
+
+        <div class="grid-3">
+          <div>
+            <label id="labelIncidentEmail" for="incidentEmail">E-mail ontvanger</label>
+            <select id="incidentEmail">
+              <option value="management@amsterdamwarehouse.com">Management</option>
+              <option value="td@amsterdamwarehouse.com">Technische dienst</option>
+              <option value="warehouseh@amsterdamwarehouse.com">Warehouse</option>
+            </select>
+          </div>
+          <div>
+            <label id="labelIncidentReporter" for="incidentReporter">Melder</label>
+            <input id="incidentReporter" type="text" placeholder="Naam melder" />
+          </div>
+          <div>
+            <label id="labelIncidentTime" for="incidentTime">Datum en tijd</label>
+            <input id="incidentTime" type="datetime-local" />
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <label id="labelIncidentLocation" for="incidentLocation">Locatie</label>
+            <select id="incidentLocation">
+              <option>Conakryweg</option>
+              <option>Slego</option>
+            </select>
+          </div>
+          <div>
+            <label id="labelIncidentWitnesses" for="incidentWitnesses">Getuigen / betrokkenen</label>
+            <input id="incidentWitnesses" type="text" placeholder="Namen getuigen / betrokkenen" />
+          </div>
+        </div>
+
+        <label id="labelIncidentWhat" for="incidentWhat">Wat is er gebeurd?</label>
+        <textarea id="incidentWhat" placeholder="Beschrijf stap voor stap wat er is gebeurd"></textarea>
+
+        <label id="labelIncidentCause" for="incidentCause">Waarschijnlijke oorzaak</label>
+        <textarea id="incidentCause" placeholder="Wat was waarschijnlijk de oorzaak?"></textarea>
+
+        <div class="grid-2">
+          <div>
+            <label id="labelIncidentInjury" for="incidentInjury">Letsel of schade?</label>
+            <select id="incidentInjury">
+              <option value="Nee">Nee</option>
+              <option value="Ja">Ja</option>
+            </select>
+          </div>
+          <div>
+            <label id="labelIncidentDanger" for="incidentDanger">Direct gevaar aanwezig?</label>
+            <select id="incidentDanger">
+              <option value="Nee">Nee</option>
+              <option value="Ja">Ja</option>
+            </select>
+          </div>
+        </div>
+
+        <label id="labelIncidentDamage" for="incidentDamage">Schade / letsel / risico</label>
+        <textarea id="incidentDamage" placeholder="Beschrijf schade, letsel of risico"></textarea>
+
+        <label id="labelIncidentAction" for="incidentAction">Welke directe actie is genomen?</label>
+        <textarea id="incidentAction" placeholder="Wat is direct gedaan om de situatie veilig te maken?"></textarea>
+
+        <label id="labelIncidentPrevention" for="incidentPrevention">Hoe voorkomen we herhaling?</label>
+        <textarea id="incidentPrevention" placeholder="Welke verbetermaatregelen zijn nodig?"></textarea>
+
+        <label id="labelIncidentPhoto" for="incidentPhoto">Foto maken / uploaden</label>
+        <input id="incidentPhoto" type="file" accept="image/*" capture="environment" multiple />
+        <div id="incidentPreview" class="preview"></div>
+
+        <div class="button-grid" style="margin-top:14px;">
+          <button class="action-btn primary" onclick="exportCurrentIncident('mail')" id="btnIncidentMail">Mail</button>
+          <button class="action-btn" onclick="exportCurrentIncident('excel')" id="btnIncidentExcel">Excel</button>
+          <button class="action-btn" onclick="exportCurrentIncident('pdf')" id="btnIncidentPdf">PDF</button>
+          <button class="action-btn" onclick="addIncidentHistory()" id="btnIncidentHistoryAdd">Aan historie toevoegen</button>
+          <button class="danger-btn" onclick="clearHistory('incidents')" id="btnIncidentClear">Historie wissen</button>
+        </div>
+
+        <p class="muted" id="incidentNote">De browser kan foto's niet als echte mailbijlage meesturen. In PDF gaan de foto's wel mee.</p>
+      </div>
+
+      <div class="card">
+        <h3 id="incidentHistoryTitle">Historie incidenten</h3>
+        <div id="incidentHistoryList" class="history-list"></div>
+      </div>
+    </section>
+
+    <section id="damage" class="tab">
+      <div class="card">
+        <h2 id="damageTitle">Schade registratie</h2>
+        <p class="intro" id="damageIntro">Registreer beschadigde artikelen inclusief aantal, locatie, type schade, opmerkingen en foto's.</p>
+
+        <div id="damageError" class="notice error"></div>
+        <div id="damageSuccess" class="notice success"></div>
+
+        <div class="grid-3">
+          <div>
+            <label id="labelDamageEmail" for="damageEmail">E-mail ontvanger</label>
+            <select id="damageEmail">
+              <option value="warehouseh@amsterdamwarehouse.com">Warehouse</option>
+              <option value="management@amsterdamwarehouse.com">Management</option>
+              <option value="td@amsterdamwarehouse.com">Technische dienst</option>
+            </select>
+          </div>
+          <div>
+            <label id="labelDamageSite" for="damageSite">Vestiging</label>
+            <select id="damageSite">
+              <option>Conakryweg</option>
+              <option>Slego</option>
+            </select>
+          </div>
+          <div>
+            <label id="labelDamageUser" for="damageUser">Gebruiker</label>
+            <input id="damageUser" type="text" placeholder="Naam gebruiker" />
+          </div>
+        </div>
+
+        <div class="summary-box">
+          <strong id="damageSummaryTitle">Schade overzicht</strong>
+          <div class="stats-grid" style="margin-top:12px;">
+            <div class="summary-item"><div id="damageRowsLabel">Regels</div><div class="value" id="damageRowsCount">0</div></div>
+            <div class="summary-item"><div id="damageItemsLabel">Stuks</div><div class="value" id="damageItemsCount">0</div></div>
+            <div class="summary-item"><div id="damagePhotosLabel">Foto's</div><div class="value" id="damagePhotosCount">0</div></div>
+            <div class="summary-item"><div id="damageStatusLabel">Open</div><div class="value" id="damageStatusCount">1</div></div>
+          </div>
+        </div>
+
+        <div style="margin-top:14px;">
+          <button class="action-btn primary" onclick="addDamageRow()" id="btnAddDamageRow">+ Regel toevoegen</button>
+        </div>
+
+        <div id="damageList" style="margin-top:14px;"></div>
+
+        <div class="button-grid" style="margin-top:14px;">
+          <button class="action-btn primary" onclick="exportCurrentDamage('mail')" id="btnDamageMail">Mail</button>
+          <button class="action-btn" onclick="exportCurrentDamage('excel')" id="btnDamageExcel">Excel</button>
+          <button class="action-btn" onclick="exportCurrentDamage('pdf')" id="btnDamagePdf">PDF</button>
+          <button class="action-btn" onclick="addDamageHistory()" id="btnDamageHistoryAdd">Aan historie toevoegen</button>
+          <button class="danger-btn" onclick="clearHistory('damages')" id="btnDamageClear">Historie wissen</button>
+        </div>
+
+        <p class="muted" id="damageNote">De browser kan foto's niet als echte mailbijlage meesturen. In PDF gaan de foto's wel mee.</p>
+      </div>
+
+      <div class="card">
+        <h3 id="damageHistoryTitle">Historie schades</h3>
+        <div id="damageHistoryList" class="history-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <a id="whatsappBtn" href="#" target="_blank" aria-label="WhatsApp">💬</a>
+
+  <script>
+    const STORAGE_KEYS = {
+      pallets: 'awc_v18_pallet_history',
+      machines: 'awc_v18_machine_history',
+      incidents: 'awc_v18_incident_history',
+      damages: 'awc_v18_damage_history'
+    };
+
+    const state = {
+      lang: 'nl',
+      machineChecks: []
+    };
+
+    const damageTypeOptions = {
+      nl: ['Gebroken','Nat','Verpakking beschadigd','Ontbrekend','Verkeerd gestapeld','Overig'],
+      en: ['Broken','Wet','Packaging damaged','Missing','Incorrectly stacked','Other']
+    };
+
+    const damageLocationOptions = {
+      nl: ['Dock 1','Dock 2','Stelling A','Stelling B','Bulk','Retour zone'],
+      en: ['Dock 1','Dock 2','Rack A','Rack B','Bulk','Returns zone']
+    };
+
+    const texts = {
+      nl: {
+        appTitle: 'AWC Warehouse Tool V18 Full Pro',
+        dashboardTab: '📊 Dashboard',
+        palletsTab: '📦 Pallets',
+        machinesTab: '🛠 Machines',
+        incidentsTab: '⚠️ Incidenten',
+        damageTab: '💥 Schade',
+
+        dashboardTitle: 'Dashboard',
+        dashboardIntro: 'Overzicht van pallets, machines, incidenten en schades.',
+        dashPalletCount: 'Pallettellingen',
+        dashMachineCount: 'Machine checks',
+        dashIncidentCount: 'Incidenten',
+        dashDamageCount: 'Schades',
+        dashTotalPallets: 'Totaal pallets',
+        dashOpenFaults: 'Machine fouten',
+        dashDamageUnits: 'Beschadigde stuks',
+        dashLastUpdate: 'Laatste update',
+        recentRegistrations: 'Recente registraties',
+        perLocationOverview: 'Overzicht per locatie',
+
+        palletTitle: 'Pallettelling',
+        palletIntro: 'Vul de telling in en maak direct mail, Excel of PDF. De foto\'s gaan mee in de PDF.',
+        machineTitle: 'Machine checklist',
+        machineIntro: 'Uitgebreide inspectie voor reachtrucks en pompkarren. Bij fouten is toelichting verplicht.',
+        incidentTitle: 'Bijna ongeval / incident',
+        incidentIntro: 'Volledig incidentrapport met belangrijke details, acties en foto.',
+        damageTitle: 'Schade registratie',
+        damageIntro: 'Registreer beschadigde artikelen inclusief aantal, locatie, type schade, opmerkingen en foto\'s.',
+
+        email: 'E-mail ontvanger',
+        location: 'Locatie',
+        site: 'Vestiging',
+        user: 'Gebruiker',
+        reporter: 'Melder',
+        witnesses: 'Getuigen / betrokkenen',
+        dateTime: 'Datum en tijd',
+
+        euro: 'Aantal lege europallets',
+        blok: 'Aantal lege blokpallets',
+        twoMeter: 'Aantal lege 2 meter pallets',
+        dpb: 'Aantal lege DPB pallets',
+
+        photo: 'Foto maken / uploaden',
+        photoLabel: 'Foto',
+
+        currentCount: 'Huidige telling',
+        total: 'Totaal:',
+
+        mail: 'Mail',
+        excel: 'Excel',
+        pdf: 'PDF',
+        addHistory: 'Aan historie toevoegen',
+        clearHistoryBtn: 'Historie wissen',
+        clearAllBtn: 'Alles wissen',
+        notePhoto: 'De browser kan foto\'s niet als echte mailbijlage meesturen. In PDF gaan de foto\'s wel mee.',
+
+        serial: 'Serienummer',
+        machineNumber: 'Machinenummer',
+        machineType: 'Type machine',
+        checksTitle: 'Controlepunten',
+        machineNotes: 'Toelichting / defecten / reparatieverzoek',
+
+        what: 'Wat is er gebeurd?',
+        cause: 'Waarschijnlijke oorzaak',
+        injury: 'Letsel of schade?',
+        danger: 'Direct gevaar aanwezig?',
+        damage: 'Schade / letsel / risico',
+        action: 'Welke directe actie is genomen?',
+        prevention: 'Hoe voorkomen we herhaling?',
+
+        palletHistoryTitle: 'Historie pallettellingen',
+        machineHistoryTitle: 'Historie machine checks',
+        incidentHistoryTitle: 'Historie incidenten',
+        damageHistoryTitle: 'Historie schades',
+
+        damageSummaryTitle: 'Schade overzicht',
+        damageRows: 'Regels',
+        damageItems: 'Stuks',
+        damagePhotos: 'Foto\'s',
+        damageOpen: 'Open',
+        addDamageRow: '+ Regel toevoegen',
+        article: 'Artikel',
+        quantity: 'Aantal',
+        damageType: 'Type schade',
+        remarks: 'Opmerking',
+        remove: 'Verwijderen',
+        damageSite: 'Locatie',
+        damageRowTitle: 'Schaderegel',
+
+        ok: 'Goed',
+        bad: 'Fout',
+
+        required: 'Vul alle verplichte velden in.',
+        palletRequired: 'Vul naam in en minimaal één pallettype groter dan 0.',
+        machineChecksRequired: 'Vul alle controlepunten in.',
+        machineNotesRequired: 'Bij een fout is toelichting verplicht.',
+        damageRequired: 'Vul gebruiker in en voeg minimaal één volledige schaderegel toe.',
+        damageLineRequired: 'Elke schaderegel moet artikel, aantal, type en locatie hebben.',
+        addedHistory: 'Toegevoegd aan historie.',
+        historyCleared: 'Historie gewist.',
+        allHistoryCleared: 'Alle historie gewist.',
+        preparing: 'Bestand wordt voorbereid...',
+        noHistory: 'Nog geen historie beschikbaar.',
+        confirmClear: 'Weet je zeker dat je deze historie wilt wissen?',
+        confirmClearAll: 'Weet je zeker dat je alle historie wilt wissen?',
+
+        palletMailSubject: 'AWC Pallettelling',
+        machineMailSubject: 'AWC Machine checklist',
+        incidentMailSubject: 'AWC Incident melding',
+        damageMailSubject: 'AWC Schade registratie',
+
+        exportMail: 'Mail',
+        exportExcel: 'Excel',
+        exportPdf: 'PDF',
+        install: 'Installeer',
+
+        tableLocation: 'Locatie',
+        tablePallets: 'Pallets',
+        tableMachines: 'Machines',
+        tableIncidents: 'Incidenten',
+        tableDamages: 'Schades',
+
+        machineItems: [
+          'Banden / wielen',
+          'Remmen',
+          'Stuurinrichting',
+          'Hefmast / vorken',
+          'Verlichting',
+          'Claxon / waarschuwing',
+          'Accu / laadstatus',
+          'Hydrauliek / lekken',
+          'Veiligheidssystemen',
+          'Algemene staat'
+        ]
+      },
+      en: {
+        appTitle: 'AWC Warehouse Tool V18 Full Pro',
+        dashboardTab: '📊 Dashboard',
+        palletsTab: '📦 Pallets',
+        machinesTab: '🛠 Machines',
+        incidentsTab: '⚠️ Incidents',
+        damageTab: '💥 Damage',
+
+        dashboardTitle: 'Dashboard',
+        dashboardIntro: 'Overview of pallets, machines, incidents and damages.',
+        dashPalletCount: 'Pallet counts',
+        dashMachineCount: 'Machine checks',
+        dashIncidentCount: 'Incidents',
+        dashDamageCount: 'Damages',
+        dashTotalPallets: 'Total pallets',
+        dashOpenFaults: 'Machine faults',
+        dashDamageUnits: 'Damaged units',
+        dashLastUpdate: 'Last update',
+        recentRegistrations: 'Recent registrations',
+        perLocationOverview: 'Per location overview',
+
+        palletTitle: 'Pallet count',
+        palletIntro: 'Complete the count and export directly to mail, Excel or PDF. Photos are included in the PDF.',
+        machineTitle: 'Machine checklist',
+        machineIntro: 'Detailed inspection for reach trucks and pallet jacks. Notes are required when faults are found.',
+        incidentTitle: 'Near miss / incident',
+        incidentIntro: 'Full incident report with key details, actions and photo.',
+        damageTitle: 'Damage registration',
+        damageIntro: 'Register damaged items including quantity, location, damage type, remarks and photos.',
+
+        email: 'Email recipient',
+        location: 'Location',
+        site: 'Site',
+        user: 'User',
+        reporter: 'Reporter',
+        witnesses: 'Witnesses / involved persons',
+        dateTime: 'Date and time',
+
+        euro: 'Number of empty euro pallets',
+        blok: 'Number of empty block pallets',
+        twoMeter: 'Number of empty 2 meter pallets',
+        dpb: 'Number of empty DPB pallets',
+
+        photo: 'Take / upload photo',
+        photoLabel: 'Photo',
+
+        currentCount: 'Current count',
+        total: 'Total:',
+
+        mail: 'Mail',
+        excel: 'Excel',
+        pdf: 'PDF',
+        addHistory: 'Add to history',
+        clearHistoryBtn: 'Clear history',
+        clearAllBtn: 'Clear all',
+        notePhoto: 'The browser cannot attach photos as real email attachments. Photos are included in the PDF.',
+
+        serial: 'Serial number',
+        machineNumber: 'Machine number',
+        machineType: 'Machine type',
+        checksTitle: 'Checkpoints',
+        machineNotes: 'Notes / defects / repair request',
+
+        what: 'What happened?',
+        cause: 'Probable cause',
+        injury: 'Injury or damage?',
+        danger: 'Immediate danger present?',
+        damage: 'Damage / injury / risk',
+        action: 'What immediate action was taken?',
+        prevention: 'How do we prevent recurrence?',
+
+        palletHistoryTitle: 'Pallet count history',
+        machineHistoryTitle: 'Machine check history',
+        incidentHistoryTitle: 'Incident history',
+        damageHistoryTitle: 'Damage history',
+
+        damageSummaryTitle: 'Damage overview',
+        damageRows: 'Rows',
+        damageItems: 'Units',
+        damagePhotos: 'Photos',
+        damageOpen: 'Open',
+        addDamageRow: '+ Add row',
+        article: 'Article',
+        quantity: 'Quantity',
+        damageType: 'Damage type',
+        remarks: 'Remarks',
+        remove: 'Remove',
+        damageSite: 'Location',
+        damageRowTitle: 'Damage row',
+
+        ok: 'Good',
+        bad: 'Fault',
+
+        required: 'Please complete all required fields.',
+        palletRequired: 'Enter the user name and at least one pallet type greater than 0.',
+        machineChecksRequired: 'Complete all checkpoints.',
+        machineNotesRequired: 'Notes are required when any checkpoint is faulty.',
+        damageRequired: 'Enter the user name and add at least one complete damage row.',
+        damageLineRequired: 'Every damage row must contain item, quantity, type and location.',
+        addedHistory: 'Added to history.',
+        historyCleared: 'History cleared.',
+        allHistoryCleared: 'All history cleared.',
+        preparing: 'Preparing file...',
+        noHistory: 'No history available yet.',
+        confirmClear: 'Are you sure you want to clear this history?',
+        confirmClearAll: 'Are you sure you want to clear all history?',
+
+        palletMailSubject: 'AWC Pallet count',
+        machineMailSubject: 'AWC Machine checklist',
+        incidentMailSubject: 'AWC Incident report',
+        damageMailSubject: 'AWC Damage registration',
+
+        exportMail: 'Mail',
+        exportExcel: 'Excel',
+        exportPdf: 'PDF',
+        install: 'Install',
+
+        tableLocation: 'Location',
+        tablePallets: 'Pallets',
+        tableMachines: 'Machines',
+        tableIncidents: 'Incidents',
+        tableDamages: 'Damages',
+
+        machineItems: [
+          'Tyres / wheels',
+          'Brakes',
+          'Steering',
+          'Mast / forks',
+          'Lights',
+          'Horn / warning',
+          'Battery / charge level',
+          'Hydraulics / leaks',
+          'Safety systems',
+          'General condition'
+        ]
+      }
+    };
+
+    function t(key){ return texts[state.lang][key]; }
+
+    function getHistory(key){
+      return JSON.parse(localStorage.getItem(key)) || [];
+    }
+
+    function setHistory(key, data){
+      localStorage.setItem(key, JSON.stringify(data));
+    }
+
+    function escapeHtml(value){
+      return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function setLang(lang){
+      state.lang = lang;
+      document.getElementById('langNlBtn').classList.toggle('active', lang === 'nl');
+      document.getElementById('langEnBtn').classList.toggle('active', lang === 'en');
+      applyTranslations();
+      renderMachineChecks();
+      rerenderDamageRows();
+      updatePalletSummary();
+      updateDamageSummary();
+      renderAllHistory();
+      renderDashboard();
+      updateWhatsAppButton();
+    }
+
+    function toggleSidebar(){
+      document.getElementById('sidebar').classList.toggle('active');
+      document.getElementById('overlay').classList.toggle('active');
+    }
+
+    function openTabFromMenu(tab){
+      showTab(tab);
+      toggleSidebar();
+    }
+
+    function showTab(tabId){
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+
+      document.querySelectorAll('.sidebar button').forEach(btn => btn.classList.remove('active'));
+      if(tabId === 'dashboard') document.getElementById('sideDashboard').classList.add('active');
+      if(tabId === 'pallets') document.getElementById('sidePallets').classList.add('active');
+      if(tabId === 'machines') document.getElementById('sideMachines').classList.add('active');
+      if(tabId === 'incidents') document.getElementById('sideIncidents').classList.add('active');
+      if(tabId === 'damage') document.getElementById('sideDamage').classList.add('active');
+
+      updateWhatsAppButton();
+    }
+
+    function applyTranslations(){
+      document.getElementById('appTitle').textContent = t('appTitle');
+      document.getElementById('sideDashboard').textContent = t('dashboardTab');
+      document.getElementById('sidePallets').textContent = t('palletsTab');
+      document.getElementById('sideMachines').textContent = t('machinesTab');
+      document.getElementById('sideIncidents').textContent = t('incidentsTab');
+      document.getElementById('sideDamage').textContent = t('damageTab');
+      document.getElementById('installBtn').textContent = t('install');
+
+      document.getElementById('dashboardTitle').textContent = t('dashboardTitle');
+      document.getElementById('dashboardIntro').textContent = t('dashboardIntro');
+      document.getElementById('dashPalletCountLabel').textContent = t('dashPalletCount');
+      document.getElementById('dashMachineCountLabel').textContent = t('dashMachineCount');
+      document.getElementById('dashIncidentCountLabel').textContent = t('dashIncidentCount');
+      document.getElementById('dashDamageCountLabel').textContent = t('dashDamageCount');
+      document.getElementById('dashTotalPalletsLabel').textContent = t('dashTotalPallets');
+      document.getElementById('dashOpenFaultsLabel').textContent = t('dashOpenFaults');
+      document.getElementById('dashDamageUnitsLabel').textContent = t('dashDamageUnits');
+      document.getElementById('dashLastUpdateLabel').textContent = t('dashLastUpdate');
+      document.getElementById('dashboardRecentLabel').textContent = t('recentRegistrations');
+      document.getElementById('dashboardLocationsLabel').textContent = t('perLocationOverview');
+      document.getElementById('tblLocation').textContent = t('tableLocation');
+      document.getElementById('tblPallets').textContent = t('tablePallets');
+      document.getElementById('tblMachines').textContent = t('tableMachines');
+      document.getElementById('tblIncidents').textContent = t('tableIncidents');
+      document.getElementById('tblDamages').textContent = t('tableDamages');
+      document.getElementById('btnClearAll').textContent = t('clearAllBtn');
+
+      document.getElementById('palletTitle').textContent = t('palletTitle');
+      document.getElementById('palletIntro').textContent = t('palletIntro');
+      document.getElementById('labelPalletEmail').textContent = t('email');
+      document.getElementById('labelPalletLocation').textContent = t('location');
+      document.getElementById('labelPalletUser').textContent = t('user');
+      document.getElementById('labelPalletPhoto').textContent = t('photo');
+      document.getElementById('labelEuro').textContent = t('euro');
+      document.getElementById('labelBlok').textContent = t('blok');
+      document.getElementById('label2m').textContent = t('twoMeter');
+      document.getElementById('labelDpb').textContent = t('dpb');
+      document.getElementById('palletSummaryTitle').textContent = t('currentCount');
+      document.getElementById('sumEuroLabel').textContent = 'Euro';
+      document.getElementById('sumBlokLabel').textContent = state.lang === 'nl' ? 'Blok' : 'Block';
+      document.getElementById('sum2mLabel').textContent = '2 meter';
+      document.getElementById('sumDpbLabel').textContent = 'DPB';
+      document.getElementById('sumTotalLabel').textContent = t('total');
+      document.getElementById('btnPalletMail').textContent = t('mail');
+      document.getElementById('btnPalletExcel').textContent = t('excel');
+      document.getElementById('btnPalletPdf').textContent = t('pdf');
+      document.getElementById('btnPalletHistoryAdd').textContent = t('addHistory');
+      document.getElementById('btnPalletClear').textContent = t('clearHistoryBtn');
+      document.getElementById('palletNote').textContent = t('notePhoto');
+      document.getElementById('palletHistoryTitle').textContent = t('palletHistoryTitle');
+      document.getElementById('palletUser').placeholder = t('user');
+
+      document.getElementById('machineTitle').textContent = t('machineTitle');
+      document.getElementById('machineIntro').textContent = t('machineIntro');
+      document.getElementById('labelMachineEmail').textContent = t('email');
+      document.getElementById('labelMachineType').textContent = t('machineType');
+      document.getElementById('labelMachineLocation').textContent = t('location');
+      document.getElementById('labelMachineUser').textContent = t('user');
+      document.getElementById('labelMachineSerial').textContent = t('serial');
+      document.getElementById('labelMachineNumber').textContent = t('machineNumber');
+      document.getElementById('machineChecksTitle').textContent = t('checksTitle');
+      document.getElementById('labelMachineNotes').textContent = t('machineNotes');
+      document.getElementById('labelMachinePhoto').textContent = t('photo');
+      document.getElementById('btnMachineMail').textContent = t('mail');
+      document.getElementById('btnMachineExcel').textContent = t('excel');
+      document.getElementById('btnMachinePdf').textContent = t('pdf');
+      document.getElementById('btnMachineHistoryAdd').textContent = t('addHistory');
+      document.getElementById('btnMachineClear').textContent = t('clearHistoryBtn');
+      document.getElementById('machineNote').textContent = t('notePhoto');
+      document.getElementById('machineHistoryTitle').textContent = t('machineHistoryTitle');
+      document.getElementById('machineUser').placeholder = t('user');
+      document.getElementById('machineSerial').placeholder = t('serial');
+      document.getElementById('machineNumber').placeholder = t('machineNumber');
+      document.getElementById('machineNotes').placeholder = t('machineNotes');
+
+      document.getElementById('incidentTitle').textContent = t('incidentTitle');
+      document.getElementById('incidentIntro').textContent = t('incidentIntro');
+      document.getElementById('labelIncidentEmail').textContent = t('email');
+      document.getElementById('labelIncidentReporter').textContent = t('reporter');
+      document.getElementById('labelIncidentTime').textContent = t('dateTime');
+      document.getElementById('labelIncidentLocation').textContent = t('location');
+      document.getElementById('labelIncidentWitnesses').textContent = t('witnesses');
+      document.getElementById('labelIncidentWhat').textContent = t('what');
+      document.getElementById('labelIncidentCause').textContent = t('cause');
+      document.getElementById('labelIncidentInjury').textContent = t('injury');
+      document.getElementById('labelIncidentDanger').textContent = t('danger');
+      document.getElementById('labelIncidentDamage').textContent = t('damage');
+      document.getElementById('labelIncidentAction').textContent = t('action');
+      document.getElementById('labelIncidentPrevention').textContent = t('prevention');
+      document.getElementById('labelIncidentPhoto').textContent = t('photo');
+      document.getElementById('btnIncidentMail').textContent = t('mail');
+      document.getElementById('btnIncidentExcel').textContent = t('excel');
+      document.getElementById('btnIncidentPdf').textContent = t('pdf');
+      document.getElementById('btnIncidentHistoryAdd').textContent = t('addHistory');
+      document.getElementById('btnIncidentClear').textContent = t('clearHistoryBtn');
+      document.getElementById('incidentNote').textContent = t('notePhoto');
+      document.getElementById('incidentHistoryTitle').textContent = t('incidentHistoryTitle');
+      document.getElementById('incidentReporter').placeholder = t('reporter');
+      document.getElementById('incidentWitnesses').placeholder = t('witnesses');
+      document.getElementById('incidentWhat').placeholder = t('what');
+      document.getElementById('incidentCause').placeholder = t('cause');
+      document.getElementById('incidentDamage').placeholder = t('damage');
+      document.getElementById('incidentAction').placeholder = t('action');
+      document.getElementById('incidentPrevention').placeholder = t('prevention');
+
+      document.getElementById('damageTitle').textContent = t('damageTitle');
+      document.getElementById('damageIntro').textContent = t('damageIntro');
+      document.getElementById('labelDamageEmail').textContent = t('email');
+      document.getElementById('labelDamageSite').textContent = t('site');
+      document.getElementById('labelDamageUser').textContent = t('user');
+      document.getElementById('damageSummaryTitle').textContent = t('damageSummaryTitle');
+      document.getElementById('damageRowsLabel').textContent = t('damageRows');
+      document.getElementById('damageItemsLabel').textContent = t('damageItems');
+      document.getElementById('damagePhotosLabel').textContent = t('damagePhotos');
+      document.getElementById('damageStatusLabel').textContent = t('damageOpen');
+      document.getElementById('btnAddDamageRow').textContent = t('addDamageRow');
+      document.getElementById('btnDamageMail').textContent = t('mail');
+      document.getElementById('btnDamageExcel').textContent = t('excel');
+      document.getElementById('btnDamagePdf').textContent = t('pdf');
+      document.getElementById('btnDamageHistoryAdd').textContent = t('addHistory');
+      document.getElementById('btnDamageClear').textContent = t('clearHistoryBtn');
+      document.getElementById('damageNote').textContent = t('notePhoto');
+      document.getElementById('damageHistoryTitle').textContent = t('damageHistoryTitle');
+      document.getElementById('damageUser').placeholder = t('user');
+    }
+
+    function showNotice(id, message, type='success'){
+      const el = document.getElementById(id);
+      el.textContent = message;
+      el.className = `notice ${type}`;
+      el.style.display = 'block';
+      setTimeout(() => el.style.display = 'none', 3000);
+    }
+
+    function fileToDataUrl(file){
+      return new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function getInputPhotos(inputId){
+      const input = document.getElementById(inputId);
+      const files = Array.from(input.files || []);
+      const results = [];
+      for(const file of files){
+        results.push(await fileToDataUrl(file));
+      }
+      return results;
+    }
+
+    function attachMultiPreview(inputId, previewId){
+      const input = document.getElementById(inputId);
+      const preview = document.getElementById(previewId);
+
+      input.addEventListener('change', async () => {
+        preview.innerHTML = '';
+        const files = Array.from(input.files || []);
+        for(const file of files){
+          const url = await fileToDataUrl(file);
+          const img = document.createElement('img');
+          img.src = url;
+          preview.appendChild(img);
+        }
+        updateWhatsAppButton();
+      });
+    }
+
+    async function addImagesToPdf(doc, images, y){
+      if(!images || !images.length) return y;
+      for(const dataUrl of images){
+        if(y > 180){
+          doc.addPage();
+          y = 20;
+        }
+        doc.text(t('photoLabel') + ':', 10, y);
+        doc.addImage(dataUrl, 'JPEG', 10, y + 6, 120, 90);
+        y += 102;
+      }
+      return y;
+    }
+
+    function num(id){
+      return Number(document.getElementById(id).value || 0);
+    }
+
+    function updatePalletSummary(){
+      const euro = num('palletEuro');
+      const blok = num('palletBlok');
+      const twoMeter = num('pallet2m');
+      const dpb = num('palletDpb');
+      const total = euro + blok + twoMeter + dpb;
+
+      document.getElementById('sumEuro').textContent = euro;
+      document.getElementById('sumBlok').textContent = blok;
+      document.getElementById('sum2m').textContent = twoMeter;
+      document.getElementById('sumDpb').textContent = dpb;
+      document.getElementById('sumTotal').textContent = total;
+
+      updateWhatsAppButton();
+    }
+
+    ['palletEuro','palletBlok','pallet2m','palletDpb'].forEach(id => {
+      document.getElementById(id).addEventListener('input', updatePalletSummary);
+    });
+
+    function getPalletFormData(){
+      const data = {
+        timestamp: new Date().toLocaleString(),
+        email: document.getElementById('palletEmail').value,
+        location: document.getElementById('palletLocation').value,
+        user: document.getElementById('palletUser').value.trim(),
+        euro: num('palletEuro'),
+        blok: num('palletBlok'),
+        twoMeter: num('pallet2m'),
+        dpb: num('palletDpb')
+      };
+      data.total = data.euro + data.blok + data.twoMeter + data.dpb;
+      return data;
+    }
+
+    function validatePalletData(data){
+      if(!data.user || data.total <= 0){
+        showNotice('palletError', t('palletRequired'), 'error');
+        return false;
+      }
+      return true;
+    }
+
+    async function addPalletHistory(){
+      const data = getPalletFormData();
+      if(!validatePalletData(data)) return;
+      data.photos = await getInputPhotos('palletPhoto');
+      const history = getHistory(STORAGE_KEYS.pallets);
+      history.unshift(data);
+      setHistory(STORAGE_KEYS.pallets, history);
+      renderPalletHistory();
+      renderDashboard();
+      showNotice('palletSuccess', t('addedHistory'), 'success');
+    }
+
+    async function exportCurrentPallet(mode, entry = null){
+      const data = entry || getPalletFormData();
+      if(!validatePalletData(data)) return;
+      if(!entry) data.photos = await getInputPhotos('palletPhoto');
+
+      if(mode === 'mail'){
+        const body = `${t('palletTitle')}
+
+${data.timestamp}
+${t('location')}: ${data.location}
+${t('user')}: ${data.user}
+${t('euro')}: ${data.euro}
+${t('blok')}: ${data.blok}
+${t('twoMeter')}: ${data.twoMeter}
+${t('dpb')}: ${data.dpb}
+${t('total')} ${data.total}
+
+${t('notePhoto')}`;
+
+        window.location.href = `mailto:${data.email}?subject=${encodeURIComponent(t('palletMailSubject'))}&body=${encodeURIComponent(body)}`;
+        return;
+      }
+
+      if(mode === 'excel'){
+        const ws = XLSX.utils.json_to_sheet([{
+          Timestamp: data.timestamp,
+          Location: data.location,
+          User: data.user,
+          EuroPallets: data.euro,
+          BlockPallets: data.blok,
+          TwoMeterPallets: data.twoMeter,
+          DPBPallets: data.dpb,
+          Total: data.total
+        }]);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Pallets');
+        XLSX.writeFile(wb, 'awc-pallettelling.xlsx');
+        showNotice('palletSuccess', t('preparing'), 'success');
+        return;
+      }
+
+      if(mode === 'pdf'){
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.setFontSize(18);
+        doc.text(t('palletTitle'), 10, 15);
+        doc.setFontSize(11);
+
+        let y = 28;
+        [
+          data.timestamp,
+          `${t('location')}: ${data.location}`,
+          `${t('user')}: ${data.user}`,
+          `${t('euro')}: ${data.euro}`,
+          `${t('blok')}: ${data.blok}`,
+          `${t('twoMeter')}: ${data.twoMeter}`,
+          `${t('dpb')}: ${data.dpb}`,
+          `${t('total')} ${data.total}`
+        ].forEach(line => {
+          doc.text(line, 10, y);
+          y += 8;
+        });
+
+        y = await addImagesToPdf(doc, data.photos || [], y + 4);
+        doc.save('awc-pallettelling.pdf');
+      }
+    }
+
+    function renderPalletHistory(){
+      const list = document.getElementById('palletHistoryList');
+      const history = getHistory(STORAGE_KEYS.pallets);
+      list.innerHTML = '';
+
+      if(!history.length){
+        list.innerHTML = `<div class="history-item">${t('noHistory')}</div>`;
+        return;
+      }
+
+      history.forEach((entry, index) => {
+        const item = document.createElement('div');
+        item.className = 'history-item';
+        item.innerHTML = `
+          <div class="history-top">
+            <div>
+              <div class="history-title">${entry.location} - ${entry.user}</div>
+              <div class="history-meta">${entry.timestamp}</div>
+            </div>
+            <div><strong>${t('total')} ${entry.total}</strong></div>
+          </div>
+          <div>Euro: ${entry.euro} | ${state.lang === 'nl' ? 'Blok' : 'Block'}: ${entry.blok} | 2 meter: ${entry.twoMeter} | DPB: ${entry.dpb}</div>
+          <div class="history-actions">
+            <button class="history-action primary" onclick="exportCurrentPallet('mail', getHistory('${STORAGE_KEYS.pallets}')[${index}])">${t('exportMail')}</button>
+            <button class="history-action" onclick="exportCurrentPallet('excel', getHistory('${STORAGE_KEYS.pallets}')[${index}])">${t('exportExcel')}</button>
+            <button class="history-action" onclick="exportCurrentPallet('pdf', getHistory('${STORAGE_KEYS.pallets}')[${index}])">${t('exportPdf')}</button>
+          </div>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    function renderMachineChecks(){
+      const previous = state.machineChecks.map(c => c.status);
+      state.machineChecks = texts[state.lang].machineItems.map((label, index) => ({
+        item: label,
+        status: previous[index] || ''
+      }));
+
+      const table = document.getElementById('machineCheckTable');
+      table.innerHTML = '';
+
+      state.machineChecks.forEach((check, index) => {
+        const row = document.createElement('div');
+        row.className = 'check-row';
+        row.innerHTML = `
+          <div><strong>${check.item}</strong></div>
+          <div class="choice-wrap">
+            <button type="button" class="choice-btn good ${check.status === 'good' ? 'active' : ''}" onclick="setMachineCheck(${index}, 'good', this)">${t('ok')}</button>
+          </div>
+          <div class="choice-wrap">
+            <button type="button" class="choice-btn bad ${check.status === 'bad' ? 'active' : ''}" onclick="setMachineCheck(${index}, 'bad', this)">${t('bad')}</button>
+          </div>
+        `;
+        table.appendChild(row);
+      });
+    }
+
+    function setMachineCheck(index, status, btn){
+      state.machineChecks[index].status = status;
+      const row = btn.closest('.check-row');
+      row.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      updateWhatsAppButton();
+    }
+
+    function getMachineFormData(){
+      return {
+        timestamp: new Date().toLocaleString(),
+        email: document.getElementById('machineEmail').value,
+        type: document.getElementById('machineType').value,
+        location: document.getElementById('machineLocation').value,
+        user: document.getElementById('machineUser').value.trim(),
+        serial: document.getElementById('machineSerial').value.trim(),
+        machineNumber: document.getElementById('machineNumber').value.trim(),
+        checks: state.machineChecks.map(c => ({ item: c.item, status: c.status })),
+        notes: document.getElementById('machineNotes').value.trim()
+      };
+    }
+
+    function validateMachineData(data){
+      if(!data.user || !data.serial || !data.machineNumber){
+        showNotice('machineError', t('required'), 'error');
+        return false;
+      }
+      if(data.checks.some(c => !c.status)){
+        showNotice('machineError', t('machineChecksRequired'), 'error');
+        return false;
+      }
+      if(data.checks.some(c => c.status === 'bad') && !data.notes){
+        showNotice('machineError', t('machineNotesRequired'), 'error');
+        return false;
+      }
+      return true;
+    }
+
+    async function buildMachineEntry(){
+      const data = getMachineFormData();
+      if(!validateMachineData(data)) return null;
+      data.photos = await getInputPhotos('machinePhoto');
+      return data;
+    }
+
+    async function addMachineHistory(){
+      const data = await buildMachineEntry();
+      if(!data) return;
+      const history = getHistory(STORAGE_KEYS.machines);
+      history.unshift(data);
+      setHistory(STORAGE_KEYS.machines, history);
+      renderMachineHistory();
+      renderDashboard();
+      showNotice('machineSuccess', t('addedHistory'), 'success');
+    }
+
+    async function exportCurrentMachine(mode, entry = null){
+      const data = entry || await buildMachineEntry();
+      if(!data) return;
+
+      if(mode === 'mail'){
+        const checksText = data.checks.map(c => `${c.item}: ${c.status === 'good' ? t('ok') : t('bad')}`).join('\n');
+        const body = `${t('machineTitle')}
+
+${data.timestamp}
+${t('machineType')}: ${data.type}
+${t('location')}: ${data.location}
+${t('user')}: ${data.user}
+${t('serial')}: ${data.serial}
+${t('machineNumber')}: ${data.machineNumber}
+
+${checksText}
+
+${t('machineNotes')}: ${data.notes || '-'}
+
+${t('notePhoto')}`;
+
+        window.location.href = `mailto:${data.email}?subject=${encodeURIComponent(t('machineMailSubject'))}&body=${encodeURIComponent(body)}`;
+        return;
+      }
+
+      if(mode === 'excel'){
+        const row = {
+          Timestamp: data.timestamp,
+          MachineType: data.type,
+          Location: data.location,
+          User: data.user,
+          SerialNumber: data.serial,
+          MachineNumber: data.machineNumber,
+          Notes: data.notes || ''
+        };
+        data.checks.forEach(c => {
+          row[c.item] = c.status === 'good' ? t('ok') : t('bad');
+        });
+        const ws = XLSX.utils.json_to_sheet([row]);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Machines');
+        XLSX.writeFile(wb, 'awc-machine-checklist.xlsx');
+        showNotice('machineSuccess', t('preparing'), 'success');
+        return;
+      }
+
+      if(mode === 'pdf'){
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.setFontSize(18);
+        doc.text(t('machineTitle'), 10, 15);
+        doc.setFontSize(11);
+
+        let y = 28;
+        [
+          data.timestamp,
+          `${t('machineType')}: ${data.type}`,
+          `${t('location')}: ${data.location}`,
+          `${t('user')}: ${data.user}`,
+          `${t('serial')}: ${data.serial}`,
+          `${t('machineNumber')}: ${data.machineNumber}`
+        ].forEach(line => {
+          doc.text(line, 10, y);
+          y += 8;
+        });
+
+        y += 2;
+        data.checks.forEach(check => {
+          doc.text(`${check.item}: ${check.status === 'good' ? t('ok') : t('bad')}`, 10, y);
+          y += 8;
+          if(y > 255){
+            doc.addPage();
+            y = 20;
+          }
+        });
+
+        y += 2;
+        const noteLines = doc.splitTextToSize(`${t('machineNotes')}: ${data.notes || '-'}`, 180);
+        doc.text(noteLines, 10, y);
+        y += noteLines.length * 7 + 6;
+
+        y = await addImagesToPdf(doc, data.photos || [], y);
+        doc.save('awc-machine-checklist.pdf');
+      }
+    }
+
+    function renderMachineHistory(){
+      const list = document.getElementById('machineHistoryList');
+      const history = getHistory(STORAGE_KEYS.machines);
+      list.innerHTML = '';
+
+      if(!history.length){
+        list.innerHTML = `<div class="history-item">${t('noHistory')}</div>`;
+        return;
+      }
+
+      history.forEach((entry, index) => {
+        const faults = entry.checks.filter(c => c.status === 'bad').map(c => c.item).join(', ') || t('ok');
+        const item = document.createElement('div');
+        item.className = 'history-item';
+        item.innerHTML = `
+          <div class="history-top">
+            <div>
+              <div class="history-title">${entry.type} - ${entry.user}</div>
+              <div class="history-meta">${entry.timestamp}</div>
+            </div>
+            <div><strong>${entry.location}</strong></div>
+          </div>
+          <div>${t('serial')}: ${entry.serial} | ${t('machineNumber')}: ${entry.machineNumber}</div>
+          <div style="margin-top:6px;"><strong>${faults}</strong></div>
+          <div class="history-actions">
+            <button class="history-action primary" onclick="exportCurrentMachine('mail', getHistory('${STORAGE_KEYS.machines}')[${index}])">${t('exportMail')}</button>
+            <button class="history-action" onclick="exportCurrentMachine('excel', getHistory('${STORAGE_KEYS.machines}')[${index}])">${t('exportExcel')}</button>
+            <button class="history-action" onclick="exportCurrentMachine('pdf', getHistory('${STORAGE_KEYS.machines}')[${index}])">${t('exportPdf')}</button>
+          </div>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    function getIncidentFormData(){
+      return {
+        timestamp: new Date().toLocaleString(),
+        email: document.getElementById('incidentEmail').value,
+        reporter: document.getElementById('incidentReporter').value.trim(),
+        time: document.getElementById('incidentTime').value,
+        location: document.getElementById('incidentLocation').value,
+        witnesses: document.getElementById('incidentWitnesses').value.trim(),
+        what: document.getElementById('incidentWhat').value.trim(),
+        cause: document.getElementById('incidentCause').value.trim(),
+        injury: document.getElementById('incidentInjury').value,
+        danger: document.getElementById('incidentDanger').value,
+        damage: document.getElementById('incidentDamage').value.trim(),
+        action: document.getElementById('incidentAction').value.trim(),
+        prevention: document.getElementById('incidentPrevention').value.trim()
+      };
+    }
+
+    function validateIncidentData(data){
+      if(!data.reporter || !data.time || !data.what || !data.cause || !data.damage || !data.action || !data.prevention){
+        showNotice('incidentError', t('required'), 'error');
+        return false;
+      }
+      return true;
+    }
+
+    async function buildIncidentEntry(){
+      const data = getIncidentFormData();
+      if(!validateIncidentData(data)) return null;
+      data.photos = await getInputPhotos('incidentPhoto');
+      return data;
+    }
+
+    async function addIncidentHistory(){
+      const data = await buildIncidentEntry();
+      if(!data) return;
+      const history = getHistory(STORAGE_KEYS.incidents);
+      history.unshift(data);
+      setHistory(STORAGE_KEYS.incidents, history);
+      renderIncidentHistory();
+      renderDashboard();
+      showNotice('incidentSuccess', t('addedHistory'), 'success');
+    }
+
+    async function exportCurrentIncident(mode, entry = null){
+      const data = entry || await buildIncidentEntry();
+      if(!data) return;
+
+      if(mode === 'mail'){
+        const body = `${t('incidentTitle')}
+
+${data.timestamp}
+${t('reporter')}: ${data.reporter}
+${t('dateTime')}: ${data.time}
+${t('location')}: ${data.location}
+${t('witnesses')}: ${data.witnesses || '-'}
+${t('what')}: ${data.what}
+${t('cause')}: ${data.cause}
+${t('injury')}: ${data.injury}
+${t('danger')}: ${data.danger}
+${t('damage')}: ${data.damage}
+${t('action')}: ${data.action}
+${t('prevention')}: ${data.prevention}
+
+${t('notePhoto')}`;
+
+        window.location.href = `mailto:${data.email}?subject=${encodeURIComponent(t('incidentMailSubject'))}&body=${encodeURIComponent(body)}`;
+        return;
+      }
+
+      if(mode === 'excel'){
+        const ws = XLSX.utils.json_to_sheet([{
+          Timestamp: data.timestamp,
+          Reporter: data.reporter,
+          EventDateTime: data.time,
+          Location: data.location,
+          Witnesses: data.witnesses || '',
+          WhatHappened: data.what,
+          Cause: data.cause,
+          InjuryOrDamage: data.injury,
+          ImmediateDanger: data.danger,
+          DamageRisk: data.damage,
+          ActionTaken: data.action,
+          Prevention: data.prevention
+        }]);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Incidents');
+        XLSX.writeFile(wb, 'awc-incidentmelding.xlsx');
+        showNotice('incidentSuccess', t('preparing'), 'success');
+        return;
+      }
+
+      if(mode === 'pdf'){
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.setFontSize(18);
+        doc.text(t('incidentTitle'), 10, 15);
+        doc.setFontSize(11);
+
+        let y = 28;
+        const blocks = [
+          data.timestamp,
+          `${t('reporter')}: ${data.reporter}`,
+          `${t('dateTime')}: ${data.time}`,
+          `${t('location')}: ${data.location}`,
+          `${t('witnesses')}: ${data.witnesses || '-'}`,
+          `${t('what')}: ${data.what}`,
+          `${t('cause')}: ${data.cause}`,
+          `${t('injury')}: ${data.injury}`,
+          `${t('danger')}: ${data.danger}`,
+          `${t('damage')}: ${data.damage}`,
+          `${t('action')}: ${data.action}`,
+          `${t('prevention')}: ${data.prevention}`
+        ];
+
+        blocks.forEach(block => {
+          const lines = doc.splitTextToSize(block, 180);
+          doc.text(lines, 10, y);
+          y += lines.length * 7 + 3;
+          if(y > 250){
+            doc.addPage();
+            y = 20;
+          }
+        });
+
+        y = await addImagesToPdf(doc, data.photos || [], y + 2);
+        doc.save('awc-incidentmelding.pdf');
+      }
+    }
+
+    function renderIncidentHistory(){
+      const list = document.getElementById('incidentHistoryList');
+      const history = getHistory(STORAGE_KEYS.incidents);
+      list.innerHTML = '';
+
+      if(!history.length){
+        list.innerHTML = `<div class="history-item">${t('noHistory')}</div>`;
+        return;
+      }
+
+      history.forEach((entry, index) => {
+        const item = document.createElement('div');
+        item.className = 'history-item';
+        item.innerHTML = `
+          <div class="history-top">
+            <div>
+              <div class="history-title">${entry.location} - ${entry.reporter}</div>
+              <div class="history-meta">${entry.timestamp}</div>
+            </div>
+            <div><strong>${entry.time}</strong></div>
+          </div>
+          <div><strong>${entry.what}</strong></div>
+          <div style="margin-top:6px;">${entry.cause}</div>
+          <div class="history-actions">
+            <button class="history-action primary" onclick="exportCurrentIncident('mail', getHistory('${STORAGE_KEYS.incidents}')[${index}])">${t('exportMail')}</button>
+            <button class="history-action" onclick="exportCurrentIncident('excel', getHistory('${STORAGE_KEYS.incidents}')[${index}])">${t('exportExcel')}</button>
+            <button class="history-action" onclick="exportCurrentIncident('pdf', getHistory('${STORAGE_KEYS.incidents}')[${index}])">${t('exportPdf')}</button>
+          </div>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    function createEmptyDamageRow(){
+      return {
+        article: '',
+        quantity: '',
+        type: '',
+        location: '',
+        remarks: '',
+        photos: []
+      };
+    }
+
+    function getDamageTypeOptions(selected){
+      return `<option value="">${t('damageType')}</option>` + damageTypeOptions[state.lang].map(option => `<option value="${escapeHtml(option)}" ${selected === option ? 'selected' : ''}>${escapeHtml(option)}</option>`).join('');
+    }
+
+    function getDamageLocationOptions(selected){
+      return `<option value="">${t('damageSite')}</option>` + damageLocationOptions[state.lang].map(option => `<option value="${escapeHtml(option)}" ${selected === option ? 'selected' : ''}>${escapeHtml(option)}</option>`).join('');
+    }
+
+    function buildDamageRowHtml(rowData){
+      return `
+        <div class="damage-row-grid">
+          <div>
+            <label>${t('article')}</label>
+            <input type="text" class="damage-article" value="${escapeHtml(rowData.article)}" placeholder="${escapeHtml(t('article'))}">
+          </div>
+          <div>
+            <label>${t('quantity')}</label>
+            <input type="number" min="1" class="damage-quantity" value="${escapeHtml(rowData.quantity)}" placeholder="${escapeHtml(t('quantity'))}">
+          </div>
+          <div>
+            <label>${t('damageType')}</label>
+            <select class="damage-type">${getDamageTypeOptions(rowData.type)}</select>
+          </div>
+          <div>
+            <label>${t('damageSite')}</label>
+            <select class="damage-location">${getDamageLocationOptions(rowData.location)}</select>
+          </div>
+          <div>
+            <label>&nbsp;</label>
+            <button type="button" class="danger-btn damage-remove">❌</button>
+          </div>
+        </div>
+
+        <div>
+          <label>${t('remarks')}</label>
+          <textarea class="damage-remarks" placeholder="${escapeHtml(t('remarks'))}">${escapeHtml(rowData.remarks)}</textarea>
+        </div>
+
+        <div>
+          <label>${t('photo')}</label>
+          <input type="file" class="damage-photo-input" accept="image/*" capture="environment" multiple>
+          <div class="preview damage-preview"></div>
+        </div>
+      `;
+    }
+
+    function addDamageRow(prefill = null){
+      const rowData = prefill || createEmptyDamageRow();
+      const container = document.getElementById('damageList');
+      const row = document.createElement('div');
+      row.className = 'damage-row';
+      row.innerHTML = buildDamageRowHtml(rowData);
+      container.appendChild(row);
+      bindDamageRow(row, rowData);
+      updateDamageSummary();
+    }
+
+    function bindDamageRow(row, rowData){
+      const photoInput = row.querySelector('.damage-photo-input');
+      const preview = row.querySelector('.damage-preview');
+
+      row.querySelector('.damage-remove').addEventListener('click', () => {
+        row.remove();
+        updateDamageSummary();
+      });
+
+      row.querySelectorAll('.damage-article, .damage-quantity, .damage-type, .damage-location, .damage-remarks').forEach(el => {
+        el.addEventListener('input', updateDamageSummary);
+        el.addEventListener('change', updateDamageSummary);
+      });
+
+      photoInput.addEventListener('change', async () => {
+        preview.innerHTML = '';
+        rowData.photos = [];
+        const files = Array.from(photoInput.files || []);
+        for(const file of files){
+          const url = await fileToDataUrl(file);
+          rowData.photos.push(url);
+          const img = document.createElement('img');
+          img.src = url;
+          preview.appendChild(img);
+        }
+        updateDamageSummary();
+      });
+
+      if(rowData.photos && rowData.photos.length){
+        rowData.photos.forEach(url => {
+          const img = document.createElement('img');
+          img.src = url;
+          preview.appendChild(img);
+        });
+      }
+    }
+
+    function getDamageRowsFromDom(){
+      return Array.from(document.querySelectorAll('#damageList .damage-row')).map(row => ({
+        article: row.querySelector('.damage-article').value.trim(),
+        quantity: row.querySelector('.damage-quantity').value,
+        type: row.querySelector('.damage-type').value,
+        location: row.querySelector('.damage-location').value,
+        remarks: row.querySelector('.damage-remarks').value.trim(),
+        photos: Array.from(row.querySelectorAll('.damage-preview img')).map(img => img.src)
+      }));
+    }
+
+    function rerenderDamageRows(){
+      const existingRows = getDamageRowsFromDom();
+      const container = document.getElementById('damageList');
+      container.innerHTML = '';
+      if(!existingRows.length){
+        addDamageRow();
+        return;
+      }
+      existingRows.forEach(row => addDamageRow(row));
+    }
+
+    function updateDamageSummary(){
+      const rows = getDamageRowsFromDom();
+      const activeRows = rows.filter(r => r.article || r.quantity || r.type || r.location || r.remarks || r.photos.length);
+      const itemCount = activeRows.reduce((sum, row) => sum + Number(row.quantity || 0), 0);
+      const photoCount = activeRows.reduce((sum, row) => sum + row.photos.length, 0);
+
+      document.getElementById('damageRowsCount').textContent = activeRows.length;
+      document.getElementById('damageItemsCount').textContent = itemCount;
+      document.getElementById('damagePhotosCount').textContent = photoCount;
+      document.getElementById('damageStatusCount').textContent = 1;
+
+      updateWhatsAppButton();
+    }
+
+    function getDamageFormData(){
+      const rows = getDamageRowsFromDom();
+      return {
+        timestamp: new Date().toLocaleString(),
+        email: document.getElementById('damageEmail').value,
+        site: document.getElementById('damageSite').value,
+        user: document.getElementById('damageUser').value.trim(),
+        rows
+      };
+    }
+
+    function validateDamageData(data){
+      const usedRows = data.rows.filter(row => row.article || row.quantity || row.type || row.location || row.remarks || row.photos.length);
+
+      if(!data.user || !usedRows.length){
+        showNotice('damageError', t('damageRequired'), 'error');
+        return false;
+      }
+
+      if(usedRows.some(row => !row.article || !row.quantity || !row.type || !row.location)){
+        showNotice('damageError', t('damageLineRequired'), 'error');
+        return false;
+      }
+
+      data.rows = usedRows;
+      data.totalItems = usedRows.reduce((sum, row) => sum + Number(row.quantity || 0), 0);
+      data.totalPhotos = usedRows.reduce((sum, row) => sum + row.photos.length, 0);
+      return true;
+    }
+
+    async function addDamageHistory(){
+      const data = getDamageFormData();
+      if(!validateDamageData(data)) return;
+      const history = getHistory(STORAGE_KEYS.damages);
+      history.unshift(data);
+      setHistory(STORAGE_KEYS.damages, history);
+      renderDamageHistory();
+      renderDashboard();
+      showNotice('damageSuccess', t('addedHistory'), 'success');
+    }
+
+    async function exportCurrentDamage(mode, entry = null){
+      const data = entry || getDamageFormData();
+      if(!validateDamageData(data)) return;
+
+      if(mode === 'mail'){
+        const lines = data.rows.map((row, index) => `${index + 1}. ${t('article')}: ${row.article} | ${t('quantity')}: ${row.quantity} | ${t('damageType')}: ${row.type} | ${t('damageSite')}: ${row.location} | ${t('remarks')}: ${row.remarks || '-'}`).join('\n');
+        const body = `${t('damageTitle')}
+
+${data.timestamp}
+${t('site')}: ${data.site}
+${t('user')}: ${data.user}
+${t('damageRows')}: ${data.rows.length}
+${t('damageItems')}: ${data.totalItems}
+
+${lines}
+
+${t('notePhoto')}`;
+
+        window.location.href = `mailto:${data.email}?subject=${encodeURIComponent(t('damageMailSubject'))}&body=${encodeURIComponent(body)}`;
+        return;
+      }
+
+      if(mode === 'excel'){
+        const ws = XLSX.utils.json_to_sheet(data.rows.map(row => ({
+          Timestamp: data.timestamp,
+          Site: data.site,
+          User: data.user,
+          Article: row.article,
+          Quantity: row.quantity,
+          DamageType: row.type,
+          Location: row.location,
+          Remarks: row.remarks || '',
+          PhotoCount: row.photos.length
+        })));
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Damages');
+        XLSX.writeFile(wb, 'awc-schade-registratie.xlsx');
+        showNotice('damageSuccess', t('preparing'), 'success');
+        return;
+      }
+
+      if(mode === 'pdf'){
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.setFontSize(18);
+        doc.text(t('damageTitle'), 10, 15);
+        doc.setFontSize(11);
+
+        let y = 28;
+        [
+          data.timestamp,
+          `${t('site')}: ${data.site}`,
+          `${t('user')}: ${data.user}`,
+          `${t('damageRows')}: ${data.rows.length}`,
+          `${t('damageItems')}: ${data.totalItems}`
+        ].forEach(line => {
+          doc.text(line, 10, y);
+          y += 8;
+        });
+
+        for(let i = 0; i < data.rows.length; i++){
+          const row = data.rows[i];
+          const linesBlock = [
+            `${t('damageRowTitle')} ${i + 1}`,
+            `${t('article')}: ${row.article}`,
+            `${t('quantity')}: ${row.quantity}`,
+            `${t('damageType')}: ${row.type}`,
+            `${t('damageSite')}: ${row.location}`,
+            `${t('remarks')}: ${row.remarks || '-'}`
+          ];
+
+          linesBlock.forEach(block => {
+            const lines = doc.splitTextToSize(block, 180);
+            doc.text(lines, 10, y);
+            y += lines.length * 7 + 2;
+            if(y > 245){
+              doc.addPage();
+              y = 20;
+            }
+          });
+
+          y += 4;
+          y = await addImagesToPdf(doc, row.photos || [], y);
+          y += 4;
+        }
+
+        doc.save('awc-schade-registratie.pdf');
+      }
+    }
+
+    function renderDamageHistory(){
+      const list = document.getElementById('damageHistoryList');
+      const history = getHistory(STORAGE_KEYS.damages);
+      list.innerHTML = '';
+
+      if(!history.length){
+        list.innerHTML = `<div class="history-item">${t('noHistory')}</div>`;
+        return;
+      }
+
+      history.forEach((entry, index) => {
+        const item = document.createElement('div');
+        item.className = 'history-item';
+        item.innerHTML = `
+          <div class="history-top">
+            <div>
+              <div class="history-title">${entry.site} - ${entry.user}</div>
+              <div class="history-meta">${entry.timestamp}</div>
+            </div>
+            <div><strong>${t('damageRows')}: ${entry.rows.length}</strong></div>
+          </div>
+          <div>${t('damageItems')}: ${entry.totalItems} | ${t('damagePhotos')}: ${entry.totalPhotos}</div>
+          <div style="margin-top:6px;">${entry.rows.map(row => `${row.article} (${row.quantity})`).join(', ')}</div>
+          <div class="history-actions">
+            <button class="history-action primary" onclick="exportCurrentDamage('mail', getHistory('${STORAGE_KEYS.damages}')[${index}])">${t('exportMail')}</button>
+            <button class="history-action" onclick="exportCurrentDamage('excel', getHistory('${STORAGE_KEYS.damages}')[${index}])">${t('exportExcel')}</button>
+            <button class="history-action" onclick="exportCurrentDamage('pdf', getHistory('${STORAGE_KEYS.damages}')[${index}])">${t('exportPdf')}</button>
+          </div>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    function clearHistory(type){
+      if(!confirm(t('confirmClear'))) return;
+      localStorage.removeItem(STORAGE_KEYS[type]);
+      renderAllHistory();
+      renderDashboard();
+      updateWhatsAppButton();
+      if(type === 'pallets') showNotice('palletSuccess', t('historyCleared'), 'success');
+      if(type === 'machines') showNotice('machineSuccess', t('historyCleared'), 'success');
+      if(type === 'incidents') showNotice('incidentSuccess', t('historyCleared'), 'success');
+      if(type === 'damages') showNotice('damageSuccess', t('historyCleared'), 'success');
+    }
+
+    function clearAllHistory(){
+      if(!confirm(t('confirmClearAll'))) return;
+      Object.values(STORAGE_KEYS).forEach(key => localStorage.removeItem(key));
+      renderAllHistory();
+      renderDashboard();
+      showTab('dashboard');
+      alert(t('allHistoryCleared'));
+    }
+
+    function renderDashboard(){
+      const pallets = getHistory(STORAGE_KEYS.pallets);
+      const machines = getHistory(STORAGE_KEYS.machines);
+      const incidents = getHistory(STORAGE_KEYS.incidents);
+      const damages = getHistory(STORAGE_KEYS.damages);
+
+      const totalPallets = pallets.reduce((sum, entry) => sum + Number(entry.total || 0), 0);
+      const machineFaults = machines.reduce((sum, entry) => sum + entry.checks.filter(c => c.status === 'bad').length, 0);
+      const damageUnits = damages.reduce((sum, entry) => sum + Number(entry.totalItems || 0), 0);
+
+      document.getElementById('dashPalletCount').textContent = pallets.length;
+      document.getElementById('dashMachineCount').textContent = machines.length;
+      document.getElementById('dashIncidentCount').textContent = incidents.length;
+      document.getElementById('dashDamageCount').textContent = damages.length;
+      document.getElementById('dashTotalPallets').textContent = totalPallets;
+      document.getElementById('dashOpenFaults').textContent = machineFaults;
+      document.getElementById('dashDamageUnits').textContent = damageUnits;
+
+      const allEntries = [
+        ...pallets.map(x => ({...x, _type: t('palletTitle')})),
+        ...machines.map(x => ({...x, _type: t('machineTitle')})),
+        ...incidents.map(x => ({...x, _type: t('incidentTitle')})),
+        ...damages.map(x => ({...x, _type: t('damageTitle')}))
+      ];
+
+      document.getElementById('dashLastUpdate').textContent = allEntries.length ? allEntries[0].timestamp : '-';
+
+      const recentList = document.getElementById('dashboardRecentList');
+      recentList.innerHTML = '';
+
+      if(!allEntries.length){
+        recentList.innerHTML = `<div class="mini-item">${t('noHistory')}</div>`;
+      } else {
+        allEntries.slice(0,8).forEach(item => {
+          let title = '-';
+          if(item._type === t('palletTitle')) title = `${item.location} - ${item.user}`;
+          if(item._type === t('machineTitle')) title = `${item.type} - ${item.user}`;
+          if(item._type === t('incidentTitle')) title = `${item.location} - ${item.reporter}`;
+          if(item._type === t('damageTitle')) title = `${item.site} - ${item.user}`;
+
+          const el = document.createElement('div');
+          el.className = 'mini-item';
+          el.innerHTML = `<strong>${item._type}</strong><div>${title}</div><div class="muted">${item.timestamp}</div>`;
+          recentList.appendChild(el);
+        });
+      }
+
+      const locations = ['Conakryweg','Slego'];
+      const tbody = document.getElementById('dashboardLocationTable');
+      tbody.innerHTML = '';
+
+      locations.forEach(location => {
+        const palletCount = pallets.filter(x => x.location === location).length;
+        const machineCount = machines.filter(x => x.location === location).length;
+        const incidentCount = incidents.filter(x => x.location === location).length;
+        const damageCount = damages.filter(x => x.site === location).length;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${location}</td>
+          <td>${palletCount}</td>
+          <td>${machineCount}</td>
+          <td>${incidentCount}</td>
+          <td>${damageCount}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderAllHistory(){
+      renderPalletHistory();
+      renderMachineHistory();
+      renderIncidentHistory();
+      renderDamageHistory();
+    }
+
+    function getAppLink(){
+      return window.location.href;
+    }
+
+    function generateWhatsAppMessage(){
+      const activeTab = document.querySelector('.tab.active')?.id || 'dashboard';
+
+      if(activeTab === 'pallets'){
+        const data = getPalletFormData();
+        return state.lang === 'nl'
+          ? `📦 ${t('palletTitle')}
+
+👤 ${t('user')}: ${data.user || '-'}
+📍 ${t('location')}: ${data.location}
+${t('euro')}: ${data.euro}
+${t('blok')}: ${data.blok}
+${t('twoMeter')}: ${data.twoMeter}
+${t('dpb')}: ${data.dpb}
+${t('total')} ${data.total}
+
+🔗 ${getAppLink()}`
+          : `📦 ${t('palletTitle')}
+
+👤 ${t('user')}: ${data.user || '-'}
+📍 ${t('location')}: ${data.location}
+${t('euro')}: ${data.euro}
+${t('blok')}: ${data.blok}
+${t('twoMeter')}: ${data.twoMeter}
+${t('dpb')}: ${data.dpb}
+${t('total')} ${data.total}
+
+🔗 ${getAppLink()}`;
+      }
+
+      if(activeTab === 'machines'){
+        const data = getMachineFormData();
+        const checks = data.checks.map(c => `• ${c.item}: ${c.status === 'good' ? t('ok') : c.status === 'bad' ? t('bad') : '-'}`).join('\n');
+
+        return `🛠 ${t('machineTitle')}
+
+👤 ${t('user')}: ${data.user || '-'}
+📍 ${t('location')}: ${data.location}
+${t('machineType')}: ${data.type}
+${t('serial')}: ${data.serial || '-'}
+${t('machineNumber')}: ${data.machineNumber || '-'}
+
+${checks}
+
+${t('machineNotes')}: ${data.notes || '-'}
+
+🔗 ${getAppLink()}`;
+      }
+
+      if(activeTab === 'incidents'){
+        const data = getIncidentFormData();
+        return `⚠️ ${t('incidentTitle')}
+
+👤 ${t('reporter')}: ${data.reporter || '-'}
+📍 ${t('location')}: ${data.location}
+🕒 ${t('dateTime')}: ${data.time || '-'}
+${t('witnesses')}: ${data.witnesses || '-'}
+
+${t('what')}: ${data.what || '-'}
+${t('cause')}: ${data.cause || '-'}
+${t('damage')}: ${data.damage || '-'}
+${t('action')}: ${data.action || '-'}
+${t('prevention')}: ${data.prevention || '-'}
+
+🔗 ${getAppLink()}`;
+      }
+
+      if(activeTab === 'damage'){
+        const data = getDamageFormData();
+        const rows = data.rows
+          .filter(r => r.article || r.quantity || r.type || r.location || r.remarks || (r.photos && r.photos.length))
+          .map((r, i) => `${i + 1}. ${r.article || '-'} | ${t('quantity')}: ${r.quantity || '-'} | ${t('damageType')}: ${r.type || '-'} | ${t('damageSite')}: ${r.location || '-'}`)
+          .join('\n');
+
+        return `💥 ${t('damageTitle')}
+
+👤 ${t('user')}: ${data.user || '-'}
+📍 ${t('site')}: ${data.site}
+
+${rows || '-'}
+
+🔗 ${getAppLink()}`;
+      }
+
+      return state.lang === 'nl'
+        ? `📊 ${t('dashboardTitle')}
+
+Bekijk de AWC app:
+${getAppLink()}`
+        : `📊 ${t('dashboardTitle')}
+
+Check the AWC app:
+${getAppLink()}`;
+    }
+
+    function updateWhatsAppButton(){
+      const btn = document.getElementById('whatsappBtn');
+      if(!btn) return;
+      const message = encodeURIComponent(generateWhatsAppMessage());
+      btn.href = `https://wa.me/?text=${message}`;
+    }
+
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById('installBtn').style.display = 'inline-block';
+    });
+
+    document.getElementById('installBtn').addEventListener('click', async () => {
+      if(!deferredPrompt) return;
+      deferredPrompt.prompt();
+      deferredPrompt = null;
+      document.getElementById('installBtn').style.display = 'none';
+    });
+
+    if('serviceWorker' in navigator){
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      });
+    }
+
+    attachMultiPreview('palletPhoto', 'palletPreview');
+    attachMultiPreview('machinePhoto', 'machinePreview');
+    attachMultiPreview('incidentPhoto', 'incidentPreview');
+
+    document.addEventListener('input', updateWhatsAppButton);
+    document.addEventListener('change', updateWhatsAppButton);
+
+    applyTranslations();
+    renderMachineChecks();
+    updatePalletSummary();
+    addDamageRow();
+    updateDamageSummary();
+    renderAllHistory();
+    renderDashboard();
+    updateWhatsAppButton();
+
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const splash = document.getElementById('splash');
+        splash.style.opacity = '0';
+        setTimeout(() => { splash.style.display = 'none'; }, 450);
+      }, 1400);
+    });
+  </script>
+</body>
+  </html>
