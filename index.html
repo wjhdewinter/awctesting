@@ -1,1 +1,159 @@
+<!DOCTYPE html><html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AWC Warehouse V5</title><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script><style>
+body{font-family:Arial;margin:0;background:#f4f6f8}
+header{background:#000;color:#fff;padding:15px;text-align:center}
+nav{display:flex;justify-content:space-around;background:#222}
+nav button{flex:1;padding:15px;color:white;background:none;border:none}
+section{display:none;padding:15px}
+section.active{display:block}
+.card{background:#fff;padding:15px;margin-bottom:15px;border-radius:10px}
+input,select,button,textarea{width:100%;padding:10px;margin-top:10px}
+</style></head>
+<body><header>
+<h2 id="title">Lege Pallets AWC</h2>
+<button onclick="switchLang()">NL / EN</button>
+</header><nav>
+<button onclick="showTab('dashboard')">Dashboard</button>
+<button onclick="showTab('pallets')">Pallets</button>
+<button onclick="showTab('checklist')">Checklist</button>
+<button onclick="showTab('incident')">Incident</button>
+</nav><section id="dashboard" class="active">
+<div class="card">
+<h3>Dashboard</h3>
+<p>Totaal: <span id="totaal">0</span></p>
+<canvas id="chart"></canvas>
+</div>
+</section><section id="pallets">
+<div class="card">
+<h3>Pallet telling</h3>
+<select id="locatie">
+<option>Conakryweg</option>
+<option>Slego</option>
+</select>
+<input type="number" id="aantal" placeholder="Aantal">
+<button onclick="savePallets()">Opslaan</button>
+<button onclick="mailPallets()">Mail</button>
+<button onclick="exportPDF()">PDF</button>
+</div>
+<div class="card">
+<h3>Historie</h3>
+<ul id="lijst"></ul>
+</div>
+</section><section id="checklist">
+<div class="card">
+<h3>Machine checklist</h3>
+<select id="machine">
+<option>Reachtruck</option>
+<option>Pompkarren</option>
+</select>
+<textarea id="opmerking" placeholder="Opmerking"></textarea>
+<input type="file" id="foto">
+<button onclick="mailChecklist()">Mail</button>
+<button onclick="pdfChecklist()">PDF</button>
+</div>
+</section><section id="incident">
+<div class="card">
+<h3>Bijna ongeval</h3>
+<textarea id="incidentText" placeholder="Beschrijving"></textarea>
+<button onclick="mailIncident()">Mail</button>
+</div>
+</section><script>
+let data=JSON.parse(localStorage.getItem("pallets"))||[];
 
+function showTab(id){
+document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
+document.getElementById(id).classList.add("active");
+}
+
+function savePallets(){
+let loc=document.getElementById("locatie").value;
+let aantal=document.getElementById("aantal").value;
+let datum=new Date().toLocaleDateString();
+
+data.push({loc,aantal,datum});
+localStorage.setItem("pallets",JSON.stringify(data));
+update();
+}
+
+function update(){
+let lijst=document.getElementById("lijst");
+lijst.innerHTML="";
+let totaal=0;
+
+data.forEach(d=>{
+totaal+=Number(d.aantal);
+let li=document.createElement("li");
+li.textContent=`${d.datum} - ${d.loc} - ${d.aantal}`;
+lijst.appendChild(li);
+});
+
+document.getElementById("totaal").innerText=totaal;
+renderChart();
+}
+
+function renderChart(){
+let ctx=document.getElementById('chart');
+let labels=data.map(d=>d.datum);
+let values=data.map(d=>d.aantal);
+new Chart(ctx,{type:'line',data:{labels:labels,datasets:[{data:values}]}});
+}
+
+function mailPallets(){
+let body="Pallet overzicht:\n";
+data.forEach(d=>{body+=`${d.datum} ${d.loc} ${d.aantal}\n`;});
+window.location.href=`mailto:?subject=Pallets&body=${encodeURIComponent(body)}`;
+}
+
+function exportPDF(){
+const { jsPDF } = window.jspdf;
+let doc=new jsPDF();
+let y=10;
+doc.text("Pallet overzicht",10,y);
+y+=10;
+data.forEach(d=>{
+doc.text(`${d.datum} ${d.loc} ${d.aantal}`,10,y);
+y+=10;
+});
+doc.save("pallets.pdf");
+}
+
+function mailChecklist(){
+let machine=document.getElementById("machine").value;
+let opm=document.getElementById("opmerking").value;
+window.location.href=`mailto:?subject=Checklist&body=${encodeURIComponent(machine+" "+opm)}`;
+}
+
+function pdfChecklist(){
+const { jsPDF } = window.jspdf;
+let doc=new jsPDF();
+let machine=document.getElementById("machine").value;
+let opm=document.getElementById("opmerking").value;
+
+doc.text("Checklist",10,10);
+doc.text("Machine: "+machine,10,20);
+doc.text("Opmerking: "+opm,10,30);
+
+let file=document.getElementById("foto").files[0];
+if(file){
+let reader=new FileReader();
+reader.onload=function(e){
+doc.addImage(e.target.result,'JPEG',10,40,100,80);
+doc.save("checklist.pdf");
+}
+reader.readAsDataURL(file);
+}else{
+doc.save("checklist.pdf");
+}
+}
+
+function mailIncident(){
+let text=document.getElementById("incidentText").value;
+window.location.href=`mailto:?subject=Incident&body=${encodeURIComponent(text)}`;
+}
+
+update();
+</script></body>
+</html>
