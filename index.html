@@ -2536,3 +2536,35 @@ ${getAppLink()}`;
   </script>
 </body>
   </html>
+<script>
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  console.log("INSTALL BESCHIKBAAR 🔥");
+});
+
+function forceInstall() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+  } else {
+    alert("Gebruik menu ⋮ → Toevoegen aan startscherm");
+  }
+}
+</script>
+
+<button onclick="forceInstall()" style="
+position:fixed;
+bottom:20px;
+left:20px;
+right:20px;
+padding:15px;
+background:#ff7a00;
+color:white;
+border:none;
+border-radius:10px;
+z-index:9999;
+">
+Installeer App
+</button>
