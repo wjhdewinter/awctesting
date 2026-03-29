@@ -1,37 +1,32 @@
-const CACHE_NAME = 'awc-v18-cache-v3';
+const CACHE_NAME = "awc-cache-v1";
 const urlsToCache = [
-  '/Awcv1/',
-  '/Awcv1/index.html',
-  '/Awcv1/manifest.json',
-  '/Awcv1/icon-192.png',
-  '/Awcv1/icon-512.png'
+  "./",
+  "./index.html",
+  "./manifest.json",
+  "./icon_192.png",
+  "./icon_512.png"
 ];
 
-self.addEventListener('install', event => {
+// Install
+self.addEventListener("install", (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(urlsToCache);
+    })
+  );
   self.skipWaiting();
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
-  );
 });
 
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(
-        keys
-          .filter(key => key !== CACHE_NAME)
-          .map(key => caches.delete(key))
-      )
-    ).then(() => self.clients.claim())
-  );
+// Activate
+self.addEventListener("activate", (event) => {
+  event.waitUntil(self.clients.claim());
 });
 
-self.addEventListener('fetch', event => {
-  if (event.request.method !== 'GET') return;
-
+// Fetch (BELANGRIJK!)
+self.addEventListener("fetch", (event) => {
   event.respondWith(
-    fetch(event.request)
-      .then(response => response)
-      .catch(() => caches.match(event.request).then(res => res || caches.match('/Awcv1/index.html')))
+    caches.match(event.request).then((response) => {
+      return response || fetch(event.request);
+    })
   );
 });
