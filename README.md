@@ -28,3 +28,6 @@ Upload alle bestanden naar GitHub Pages. Open de app via HTTPS en gebruik daarna
 
 ## Let op over e-mailbijlagen
 Een browser kan via `mailto:` geen bestanden automatisch als bijlage meesturen of direct aan een bestaande e-mailthread koppelen. De app opent een mailconcept met ontvangers, CC/BCC, onderwerp en tekst. Voeg daarna de gegenereerde PDF/foto's handmatig toe in Outlook/Gmail.
+
+## Update/cache fix
+Deze versie bevat automatische cache-verversing. Gebruik de knop **Update** in de app als een telefoon nog een oude versie toont.

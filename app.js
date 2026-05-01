@@ -27,7 +27,45 @@ function warehouseItems(){return warehouseRoomItems[selectedRoom]||warehouseRoom
 function warehouseCriticalForRoom(){return warehouseItems().filter(x=>['Brandblussers en noodmiddelen bereikbaar','Nooduitgangen / vluchtroutes vrij','Nooduitgangen aan buitenzijde vrij bereikbaar','Geen lekkage of gevaarlijke situatie','Geen lekkage, morsing of gevaarlijke situatie','Geen lekkage, brandlucht of gevaarlijke situatie','Elektrakasten/installaties vrij bereikbaar','Valbeveiliging / hekwerk aanwezig en schadevrij','Maximale belasting niet overschreden','Docklevellers / laadbruggen schadevrij'].includes(x))}
 let wchecks={};
 function resetWarehouseChecks(){wchecks={};warehouseItems().forEach(c=>wchecks[c]=null)}
-function init(){lang=localStorage.getItem(KEY+'lang')||'nl';initNavLabels();mails.forEach(m=>document.querySelectorAll('select[id$="_mail"]').forEach(s=>s.innerHTML+=`<option value="${m.email}">${m.name}</option>`));checkItems.forEach(c=>checks[c]=null);resetWarehouseChecks();renderChecks();renderRooms();renderWarehouseChecks();renderPersonnel();['p','m','i','w'].forEach(prefix=>attachPhotos(prefix));addRow('d');addRow('c');addOrderRow();updateOrderTotals();initSig();setNow();renderAll();document.addEventListener('input',()=>{updatePallet();updateMachineStatus();updateOrderTotals();updateWA()});document.addEventListener('change',()=>{updatePallet();updateMachineStatus();updateOrderTotals();updateWA()});window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e});if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});} 
+const APP_BUILD='20260501-UPDATEFIX';
+let __awcReloadingForUpdate=false;
+async function forceUpdateNow(){
+  try{
+    if('caches' in window){
+      const keys=await caches.keys();
+      await Promise.all(keys.map(k=>caches.delete(k)));
+    }
+    if('serviceWorker' in navigator){
+      const regs=await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(async r=>{try{await r.update();}catch(e){} if(r.waiting)r.waiting.postMessage({type:'SKIP_WAITING'});}));
+    }
+  }catch(e){console.warn('Update cache clean failed',e)}
+  location.reload();
+}
+function registerSWUpdateFix(){
+  if(!('serviceWorker' in navigator))return;
+  window.addEventListener('load',async()=>{
+    try{
+      const reg=await navigator.serviceWorker.register('sw.js?v='+APP_BUILD);
+      await reg.update();
+      if(reg.waiting)reg.waiting.postMessage({type:'SKIP_WAITING'});
+      reg.addEventListener('updatefound',()=>{
+        const nw=reg.installing;
+        if(!nw)return;
+        nw.addEventListener('statechange',()=>{
+          if(nw.state==='installed'&&navigator.serviceWorker.controller){nw.postMessage({type:'SKIP_WAITING'});}
+        });
+      });
+      navigator.serviceWorker.addEventListener('controllerchange',()=>{
+        if(__awcReloadingForUpdate)return;
+        __awcReloadingForUpdate=true;
+        location.reload();
+      });
+    }catch(e){console.warn('Service worker update failed',e)}
+  });
+}
+
+function init(){lang=localStorage.getItem(KEY+'lang')||'nl';initNavLabels();mails.forEach(m=>document.querySelectorAll('select[id$="_mail"]').forEach(s=>s.innerHTML+=`<option value="${m.email}">${m.name}</option>`));checkItems.forEach(c=>checks[c]=null);resetWarehouseChecks();renderChecks();renderRooms();renderWarehouseChecks();renderPersonnel();['p','m','i','w'].forEach(prefix=>attachPhotos(prefix));addRow('d');addRow('c');addOrderRow();updateOrderTotals();initSig();setNow();renderAll();document.addEventListener('input',()=>{updatePallet();updateMachineStatus();updateOrderTotals();updateWA()});document.addEventListener('change',()=>{updatePallet();updateMachineStatus();updateOrderTotals();updateWA()});window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e});registerSWUpdateFix();} 
 function show(id){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));qs(id).classList.add('active');tabs.forEach(x=>qs('nav_'+x[0])?.classList.toggle('active',x[0]===id));const tab=tabs.find(x=>x[0]===id);qs('pageTitle').textContent=(lang==='en'?(tabLabelsEN[tab[1]]||tab[1]):tab[1]).replace(/^[^ ]+ /,'');qs('pageSub').textContent=lang==='en'?(tabSubsEN[tab[2]]||tab[2]):tab[2];side.classList.remove('open');applyI18n();updateWA()}function installApp(){if(deferredPrompt){deferredPrompt.prompt();deferredPrompt=null;return}alert('Installeren werkt alleen via HTTPS, bijvoorbeeld GitHub Pages, en wanneer de browser de app als PWA accepteert. Android/Chrome: open de site en kies menu ⋮ > App installeren of Toevoegen aan startscherm. iPhone/Safari: Deel-knop > Zet op beginscherm. Niet via een lokaal bestand openen.')}
 function now(){return new Date().toLocaleString('nl-NL')}function setNow(){const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());qs('i_time').value=d.toISOString().slice(0,16)}function hist(t){return JSON.parse(localStorage.getItem(KEY+t)||'[]')}function saveHist(t,o){const a=hist(t);a.unshift({...o,id:crypto.randomUUID?.()||Date.now(),timestamp:now()});localStorage.setItem(KEY+t,JSON.stringify(a));renderAll()}function msg(id,txt,ok=false){qs(id).innerHTML=txt?`<div class="notice ${ok?'ok':'err'}">${txt}</div>`:''}function val(id){return qs(id).value.trim()}function num(id){return Number(qs(id).value||0)}
 function attachPhotos(prefix){qs(prefix+'_photos').addEventListener('change',async e=>{photos[prefix]=[];for(const f of e.target.files){photos[prefix].push(await fileData(f))}qs(prefix+'_prev').innerHTML=photos[prefix].map(src=>`<img src="${src}">`).join('');updateWA()})}function fileData(f){return new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.readAsDataURL(f)})}
