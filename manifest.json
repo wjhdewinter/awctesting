@@ -1,11 +1,10 @@
 {
-  "name": "AWC Warehouse Tool V18 Full Pro",
-  "short_name": "AWC Tool",
+  "name": "AWC Warehouse Tool versie 1.0",
+  "short_name": "AWC Tool 1.0",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#111111",
   "theme_color": "#ff7a00",
-  "orientation": "portrait",
   "icons": [
     {
       "src": "icon-192.png",
@@ -17,5 +16,6 @@
       "sizes": "512x512",
       "type": "image/png"
     }
-  ]
+  ],
+  "scope": "./"
 }
