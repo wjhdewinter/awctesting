@@ -307,5 +307,21 @@ updateWA=function(){
   if(active==='manco')txt=textRows('manco');
   qs('wa').href='https://wa.me/?text='+encodeURIComponent(txt+'\n\n'+location.href);
 };
-
+document.body.insertAdjacentHTML('beforeend', `
+  <div style="
+    position:fixed;
+    bottom:10px;
+    left:0;
+    right:0;
+    text-align:center;
+    font-size:14px;
+    color:#cbd5e1;
+    background:rgba(0,0,0,0.6);
+    padding:6px;
+  ">
+    📞 <a href="tel:+31203081287" style="color:#38bdf8;">+31 (0)20-3081287</a>
+    &nbsp;|&nbsp;
+    📧 <a href="mailto:info@amsterdamwarehouse.com" style="color:#38bdf8;">info@amsterdamwarehouse.com</a>
+  </div>
+`);
 init();
