@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AWC Tool App</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #0f172a, #111827);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 18px;
+}
+
+.card {
+  background: #111827;
+  padding: 28px;
+  border-radius: 22px;
+  max-width: 560px;
+  width: 100%;
+  box-shadow: 0 20px 55px rgba(0,0,0,0.55);
+  text-align: center;
+}
+
+.logo {
+  width: 220px;
+  max-width: 85%;
+  margin-bottom: 18px;
+}
+
+h1 {
+  margin: 10px 0;
+  font-size: 30px;
+}
+
+.subtitle {
+  color: #f97316;
+  font-weight: bold;
+  margin-bottom: 18px;
+}
+
+p {
+  color: #cbd5e1;
+  line-height: 1.6;
+}
+
+select {
+  padding: 10px;
+  border-radius: 10px;
+  margin: 15px 0;
+  font-size: 15px;
+}
+
+.btn {
+  display: block;
+  text-decoration: none;
+  padding: 16px;
+  border-radius: 14px;
+  margin: 12px 0;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.web {
+  background: #f97316;
+  color: white;
+}
+
+.apk {
+  background: #1f2937;
+  color: #38bdf8;
+  border: 1px solid #334155;
+}
+
+.features {
+  margin-top: 22px;
+  text-align: left;
+  font-size: 15px;
+  background: #0f172a;
+  padding: 16px;
+  border-radius: 14px;
+}
+
+.features div {
+  margin-bottom: 9px;
+}
+
+.note {
+  margin-top: 20px;
+  background: #022c22;
+  padding: 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  color: #4ade80;
+  line-height: 1.5;
+}
+
+.contact {
+  margin-top: 24px;
+  font-size: 13px;
+  color: #94a3b8;
+  line-height: 1.7;
+}
+
+.footer {
+  margin-top: 18px;
+  color: #64748b;
+  font-size: 13px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<img class="logo" src="logo.png" alt="Amsterdam Warehouse Company Logo">
+
+<h1>🚀 AWC Tool App</h1>
+<div class="subtitle" id="subtitle"></div>
+
+<select onchange="setLang(this.value)">
+  <option value="nl">🇳🇱 Nederlands</option>
+  <option value="en">🇬🇧 English</option>
+  <option value="ua">🇺🇦 Українська</option>
+  <option value="pl">🇵🇱 Polski</option>
+  <option value="hu">🇭🇺 Magyar</option>
+  <option value="ro">🇷🇴 Română</option>
+  <option value="de">🇩🇪 Deutsch</option>
+  <option value="es">🇪🇸 Español</option>
+</select>
+
+<p id="intro"></p>
+
+<a class="btn web" href="https://wjhdewinter.github.io/AWC-final-1.0/" target="_blank">
+🌐 Open webapp
+</a>
+
+<a class="btn apk" href="https://github.com/wjhdewinter/AWC-final-1.0/releases/download/V1.0/AWC.Tool.apk">
+📦 Download Android app
+</a>
+
+<div class="features" id="features"></div>
+
+<div class="note" id="note"></div>
+
+<div class="contact">
+📍 Slego 1a, 1046 BM Amsterdam<br>
+📍 Conakryweg 6, 1047 HS Amsterdam<br>
+📧 info@amsterdamwarehouse.com<br>
+📞 +31 (0)20-3081287
+</div>
+
+<div class="footer">
+AWC Tool App – Snel. Overzichtelijk. Betrouwbaar.
+</div>
+
+</div>
+
+<script>
+const translations = {
+  nl: {
+    subtitle: "Slimmer werken in het warehouse",
+    intro: "Welkom bij de AWC Tool App. Met deze app voeren we controles sneller, overzichtelijker en professioneler uit. Gebruik de webversie direct in je browser of installeer de Android app op je telefoon.",
+    features: [
+      "✔ Warehouse checks per ruimte",
+      "✔ Personeelsregistratie aanwezig / afwezig",
+      "✔ BHV controles uitvoeren",
+      "✔ Foto’s toevoegen aan controles",
+      "✔ PDF genereren en verzenden",
+      "✔ Geschikt voor dagelijks gebruik"
+    ],
+    note: "Android installatie: download de APK, open het bestand en sta indien nodig ‘onbekende apps installeren’ toe."
+  },
+
+  en: {
+    subtitle: "Smarter warehouse work",
+    intro: "Welcome to the AWC Tool App. This app helps us complete checks faster, clearer and more professionally. Use the web version in your browser or install the Android app on your phone.",
+    features: [
+      "✔ Warehouse checks per area",
+      "✔ Staff registration present / absent",
+      "✔ Safety (BHV) checks",
+      "✔ Add photos to inspections",
+      "✔ Generate and send PDFs",
+      "✔ Suitable for daily use"
+    ],
+    note: "Android installation: download the APK, open the file and allow installation from unknown sources if needed."
+  },
+
+  ua: {
+    subtitle: "Розумніша робота на складі",
+    intro: "Ласкаво просимо до AWC Tool App. Цей додаток допомагає виконувати перевірки швидше, зрозуміліше та професійніше. Використовуйте вебверсію або встановіть Android додаток.",
+    features: [
+      "✔ Перевірки складу по зонах",
+      "✔ Реєстрація персоналу",
+      "✔ Перевірки безпеки (BHV)",
+      "✔ Додавання фотографій",
+      "✔ Створення та надсилання PDF",
+      "✔ Підходить для щоденного використання"
+    ],
+    note: "Встановлення Android: завантажте APK, відкрийте файл і дозвольте встановлення з невідомих джерел."
+  },
+
+  pl: {
+    subtitle: "Sprawniejsza praca w magazynie",
+    intro: "Witamy w AWC Tool App. Aplikacja pomaga wykonywać kontrole szybciej, przejrzyściej i bardziej profesjonalnie. Użyj wersji webowej lub zainstaluj aplikację Android.",
+    features: [
+      "✔ Kontrole magazynu według obszaru",
+      "✔ Rejestracja personelu",
+      "✔ Kontrole bezpieczeństwa (BHV)",
+      "✔ Dodawanie zdjęć",
+      "✔ Generowanie i wysyłanie PDF",
+      "✔ Do codziennego użytku"
+    ],
+    note: "Instalacja Android: pobierz APK, otwórz plik i zezwól na instalację z nieznanych źródeł."
+  },
+
+  hu: {
+    subtitle: "Okosabb raktári munka",
+    intro: "Üdvözöljük az AWC Tool App alkalmazásban. Az app segít az ellenőrzéseket gyorsabban, átláthatóbban és professzionálisabban elvégezni. Használja böngészőben vagy telepítse Androidra.",
+    features: [
+      "✔ Raktárellenőrzések területenként",
+      "✔ Dolgozók jelenlétének rögzítése",
+      "✔ Biztonsági ellenőrzések (BHV)",
+      "✔ Fotók hozzáadása",
+      "✔ PDF készítése és küldése",
+      "✔ Napi használatra alkalmas"
+    ],
+    note: "Android telepítés: töltse le az APK-t, nyissa meg, és engedélyezze az ismeretlen forrásokat."
+  },
+
+  ro: {
+    subtitle: "Muncă mai eficientă în depozit",
+    intro: "Bine ai venit în AWC Tool App. Aplicația ajută la efectuarea controalelor mai rapid, mai clar și mai profesionist. Folosește versiunea web sau instalează aplicația Android.",
+    features: [
+      "✔ Verificări depozit pe zone",
+      "✔ Înregistrare personal prezent / absent",
+      "✔ Controale de siguranță (BHV)",
+      "✔ Adăugare fotografii",
+      "✔ Generare și trimitere PDF",
+      "✔ Potrivită pentru utilizare zilnică"
+    ],
+    note: "Instalare Android: descarcă APK-ul, deschide fișierul și permite instalarea din surse necunoscute."
+  },
+
+  de: {
+    subtitle: "Effizienter arbeiten im Lager",
+    intro: "Willkommen bei der AWC Tool App. Diese App hilft, Kontrollen schneller, übersichtlicher und professioneller durchzuführen. Nutzen Sie die Webversion oder installieren Sie die Android App.",
+    features: [
+      "✔ Lagerkontrollen pro Bereich",
+      "✔ Personal anwesend / abwesend erfassen",
+      "✔ Sicherheitskontrollen (BHV)",
+      "✔ Fotos hinzufügen",
+      "✔ PDF erstellen und versenden",
+      "✔ Geeignet für den täglichen Gebrauch"
+    ],
+    note: "Android Installation: APK herunterladen, Datei öffnen und Installation aus unbekannten Quellen erlauben."
+  },
+
+  es: {
+    subtitle: "Trabajo de almacén más eficiente",
+    intro: "Bienvenido a AWC Tool App. Esta aplicación ayuda a realizar controles de forma más rápida, clara y profesional. Usa la versión web o instala la aplicación Android.",
+    features: [
+      "✔ Controles de almacén por área",
+      "✔ Registro de personal presente / ausente",
+      "✔ Controles de seguridad (BHV)",
+      "✔ Añadir fotos",
+      "✔ Generar y enviar PDF",
+      "✔ Apta para uso diario"
+    ],
+    note: "Instalación Android: descarga el APK, abre el archivo y permite instalación desde fuentes desconocidas."
+  }
+};
+
+function setLang(lang) {
+  document.getElementById("subtitle").innerText = translations[lang].subtitle;
+  document.getElementById("intro").innerText = translations[lang].intro;
+
+  let html = "";
+  translations[lang].features.forEach(item => {
+    html += "<div>" + item + "</div>";
+  });
+
+  document.getElementById("features").innerHTML = html;
+  document.getElementById("note").innerText = translations[lang].note;
+}
+
+setLang("nl");
+</script>
+
+</body>
+</html>
